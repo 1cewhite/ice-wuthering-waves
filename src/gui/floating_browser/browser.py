@@ -706,6 +706,11 @@ class FloatingBrowser:
         """测试/诊断用：直接设定播放时刻（不走页面上报）。"""
         self._send("debug_set_playback", [float(seconds), float(rate), bool(paused)])
 
+    def debug_set_overlay_settings(self, kind: str, settings: dict) -> None:
+        """测试/诊断用：直接改覆盖层设置（不经过设置面板）。"""
+        self._send("debug_set_settings",
+                   {"kind": kind, "settings": dict(settings or {})})
+
     def set_mirror(self, enabled: bool) -> bool:
         """总开关（工具条按钮 / 热键用）：同时开/关弹幕与字幕。
 

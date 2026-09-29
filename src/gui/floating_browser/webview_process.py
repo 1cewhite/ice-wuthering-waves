@@ -52,6 +52,7 @@ from typing import Any
 from src.gui.floating_browser import log as fb_log
 from src.gui.floating_browser import bilibili_danmaku
 from src.gui.floating_browser.danmaku_overlay import MIRROR_JS, DanmakuOverlay
+from src.gui.floating_browser.subtitle_overlay import SubtitleOverlay
 
 try:  # Windows 专用；其它平台走降级分支
     import ctypes
@@ -250,6 +251,31 @@ CONTROL_BAR_JS = r"""
         '#__ok_xbar svg{display:block;pointer-events:none;}',
         '#__ok_xbar input[type=range]{width:74px;accent-color:#2f6feb;cursor:pointer;margin:0;}',
         '#__ok_xbar .ok-sep{width:1px;height:16px;background:rgba(255,255,255,.18);}',
+        '#__ok_panel{position:fixed;width:250px;max-height:calc(100vh - 52px);overflow-y:auto;',
+        'background:rgba(24,25,28,.97);border:1px solid rgba(255,255,255,.12);border-radius:8px;',
+        'box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:2147483647;padding:0;',
+        'font:12px/1.5 "Microsoft YaHei",system-ui,sans-serif;color:#e8eaf0;}',
+        '#__ok_panel .ok-ph{display:flex;align-items:center;justify-content:space-between;',
+        'padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px;}',
+        '#__ok_panel .ok-pr{all:unset;cursor:pointer;color:#8b8f9a;font-size:11px;}',
+        '#__ok_panel .ok-pr:hover{color:#00a1d6;}',
+        '#__ok_panel .ok-pb{padding:11px 12px 5px;}',
+        '#__ok_panel .ok-row{margin-bottom:14px;}',
+        '#__ok_panel .ok-label{display:flex;justify-content:space-between;align-items:center;',
+        'color:#c9ccd6;margin-bottom:6px;}',
+        '#__ok_panel .ok-val{color:#00a1d6;font-variant-numeric:tabular-nums;}',
+        '#__ok_panel input[type=range]{width:100%;height:16px;accent-color:#00a1d6;cursor:pointer;margin:0;}',
+        '#__ok_panel .ok-chips{display:flex;gap:8px;}',
+        '#__ok_panel .ok-chip{flex:1;text-align:center;padding:7px 0;border-radius:6px;cursor:pointer;',
+        'background:rgba(255,255,255,.08);color:#c9ccd6;user-select:none;transition:background .15s;}',
+        '#__ok_panel .ok-chip:hover{background:rgba(255,255,255,.16);}',
+        '#__ok_panel .ok-chip.on{background:#00a1d6;color:#fff;}',
+        '#__ok_panel .ok-seg{display:flex;gap:4px;}',
+        '#__ok_panel .ok-seg span{flex:1;text-align:center;padding:5px 0;border-radius:5px;cursor:pointer;',
+        'background:rgba(255,255,255,.08);color:#c9ccd6;font-size:11px;user-select:none;}',
+        '#__ok_panel .ok-seg span.on{background:#00a1d6;color:#fff;}',
+        '#__ok_panel .ok-hint{color:#7b7f8a;font-size:11px;margin:-6px 0 12px;}',
+        '#__ok_panel .ok-note{color:#7b7f8a;font-size:11px;margin-bottom:10px;line-height:1.5;}',
         // 保留页面原生滚动条但收窄到 8px；右侧把手加宽到 18~22px，
         // 这样滚动条只盖住把手最外侧 8px，把手内侧仍可抓取（滚动条是原生层，无法被盖住）。
         '::-webkit-scrollbar{width:8px;height:8px;background:transparent;}',
@@ -322,6 +348,14 @@ CONTROL_BAR_JS = r"""
         ].join('');
         document.body.appendChild(bar);
 
+        var panel = document.createElement('div');
+        panel.id = '__ok_panel';
+        panel.style.display = 'none';
+        panel.innerHTML = '<div class="ok-ph"><span id="__ok_pt">弹幕设置</span>' +
+                          '<button class="ok-pr" id="__ok_pr">重置</button></div>' +
+                          '<div class="ok-pb" id="__ok_pb"></div>';
+        document.body.appendChild(panel);
+
         ['w', 'e', 's', 'nw', 'ne', 'sw', 'se'].forEach(function (edge) {
             var grip = document.createElement('div');
             grip.className = 'ok-resize ' + edge;
@@ -335,6 +369,7 @@ CONTROL_BAR_JS = r"""
         var closeBtn = document.getElementById('__ok_close');
         var mirrorBtn = document.getElementById('__ok_dm');
         var subtitleBtn = document.getElementById('__ok_cc');
+        bindPanelOpeners();
 
         opacity.addEventListener('input', function () {
             push({ action: 'opacity', value: clampInt(opacity.value, 20, 100, 90) });
@@ -404,6 +439,260 @@ CONTROL_BAR_JS = r"""
             grips[i].style.display = clickThrough ? 'none' : '';
         }
     };
+
+    // ------------------------------------------------------------------
+    // 设置面板：右键工具条上的「弹幕」「字幕」按钮打开
+    //
+    // 真相源在子进程（它要拿去渲染、还要存配置）。页面这边只负责显示与修改：
+    // 打开面板时用最近一次从子进程收到的值，「重置」也只是把值改回默认再上报。
+    // ------------------------------------------------------------------
+    var SETTINGS_DEFAULTS = {
+        danmaku: {filter_scroll: false, filter_fixed: false, area: 100,
+                  opacity: 100, font_scale: 0.8, speed_plus: 1.0},
+        subtitle: {font_scale: 1.0, position: 88, bg_opacity: 0}
+    };
+    var SPEED_STEPS = [[0.5, '很慢'], [0.75, '慢'], [1.0, '适中'], [1.5, '快'], [2.0, '很快']];
+    var panelKind = null;
+
+    function cloneSettings(kind) {
+        var out = {}, src = SETTINGS_DEFAULTS[kind];
+        for (var key in src) {
+            if (Object.prototype.hasOwnProperty.call(src, key)) { out[key] = src[key]; }
+        }
+        return out;
+    }
+
+    var panelSettings = {danmaku: cloneSettings('danmaku'), subtitle: cloneSettings('subtitle')};
+    var SETTINGS_STORE_KEY = 'ok_floating_browser_overlay_settings';
+
+    function loadStoredSettings() {
+        try {
+            var raw = localStorage.getItem(SETTINGS_STORE_KEY);
+            if (!raw) { return; }
+            var saved = JSON.parse(raw) || {};
+            for (var kind in panelSettings) {
+                if (!Object.prototype.hasOwnProperty.call(panelSettings, kind)) { continue; }
+                var bucket = saved[kind] || {};
+                for (var key in panelSettings[kind]) {
+                    if (Object.prototype.hasOwnProperty.call(panelSettings[kind], key)
+                        && bucket[key] !== undefined) {
+                        panelSettings[kind][key] = bucket[key];
+                    }
+                }
+            }
+        } catch (e) {}
+    }
+
+    function saveStoredSettings() {
+        try { localStorage.setItem(SETTINGS_STORE_KEY, JSON.stringify(panelSettings)); } catch (e) {}
+    }
+
+    // 镜像开启时把设置推给子进程（它负责真正渲染）
+    window.__okPushSettings = function () {
+        push({action: 'overlay_settings',
+              data: {kind: 'danmaku', settings: panelSettings.danmaku}});
+        push({action: 'overlay_settings',
+              data: {kind: 'subtitle', settings: panelSettings.subtitle}});
+        return true;
+    };
+
+    loadStoredSettings();
+
+    // 子进程推「当前生效的设置」过来
+    window.__okApplySettings = function (kind, settings) {
+        if (!settings || !panelSettings[kind]) { return false; }
+        for (var key in settings) {
+            if (Object.prototype.hasOwnProperty.call(settings, key)) {
+                panelSettings[kind][key] = settings[key];
+            }
+        }
+        if (panelKind === kind) { renderPanel(kind); }
+        saveStoredSettings();
+        return true;
+    };
+
+    function rowRange(label, key, value, min, max, suffix) {
+        return '<div class="ok-row"><div class="ok-label"><span>' + label +
+               '</span><span class="ok-val" data-val="' + key + '">' + Math.round(value) + suffix +
+               '</span></div><input type="range" data-key="' + key + '" min="' + min +
+               '" max="' + max + '" value="' + Math.round(value) + '"></div>';
+    }
+
+    function rowChips(label, items) {
+        var html = '<div class="ok-row"><div class="ok-label"><span>' + label +
+                   '</span></div><div class="ok-chips">';
+        for (var i = 0; i < items.length; i++) {
+            html += '<div class="ok-chip' + (items[i].on ? ' on' : '') +
+                    '" data-toggle="' + items[i].key + '">' + items[i].text + '</div>';
+        }
+        return html + '</div></div>';
+    }
+
+    function rowSeg(label, key, value, steps) {
+        var current = '';
+        var html = '<div class="ok-row"><div class="ok-label"><span>' + label +
+                   '</span><span class="ok-val" data-val="' + key + '"></span></div><div class="ok-seg">';
+        for (var i = 0; i < steps.length; i++) {
+            if (Math.abs(steps[i][0] - value) < 0.01) { current = steps[i][1]; }
+            html += '<span data-set="' + key + '" data-value="' + steps[i][0] + '">' +
+                    steps[i][1] + '</span>';
+        }
+        return html + '</div></div>';
+    }
+
+    function renderPanel(kind) {
+        var body = document.getElementById('__ok_pb');
+        var title = document.getElementById('__ok_pt');
+        if (!body || !title) { return; }
+        panelKind = kind;
+        var s = panelSettings[kind];
+        var html = '';
+        if (kind === 'danmaku') {
+            title.textContent = '弹幕设置';
+            html += rowChips('按类型过滤（选中 = 屏蔽）', [
+                {key: 'filter_scroll', text: '滚动', on: !!s.filter_scroll},
+                {key: 'filter_fixed', text: '固定', on: !!s.filter_fixed}
+            ]);
+            html += rowRange('显示区域', 'area', s.area, 10, 100, '%');
+            html += rowRange('不透明度', 'opacity', s.opacity, 5, 100, '%');
+            html += rowRange('弹幕字号', 'font_scale', s.font_scale * 100, 50, 150, '%');
+            html += rowSeg('弹幕速度', 'speed_plus', s.speed_plus, SPEED_STEPS);
+            html += '<div class="ok-hint">选项与档位对齐 B 站播放器的弹幕设置。</div>';
+        } else {
+            title.textContent = '字幕设置';
+            html += rowRange('字幕大小', 'font_scale', s.font_scale * 100, 50, 200, '%');
+            html += rowRange('字幕位置', 'position', s.position, 0, 100, '%');
+            html += rowRange('字幕背景不透明度', 'bg_opacity', s.bg_opacity, 0, 100, '%');
+            html += '<div class="ok-hint">位置越大越靠下（0 = 贴顶，100 = 贴底）。</div>';
+            html += '<div class="ok-note">字幕只能从页面采集（接口未登录拿不到），' +
+                    '所以需要在播放器里打开 CC 才会有字幕。</div>';
+        }
+        body.innerHTML = html;
+        bindPanelControls(kind);
+    }
+
+    function pushPanelSettings(kind) {
+        saveStoredSettings();
+        push({action: 'overlay_settings',
+              data: {kind: kind, settings: panelSettings[kind]}});
+    }
+
+    function setPanelValue(kind, key, value) {
+        var s = panelSettings[kind];
+        // 字号在面板里用百分比显示，存储用倍数
+        s[key] = (key === 'font_scale') ? (value / 100) : value;
+        pushPanelSettings(kind);
+    }
+
+    function bindPanelControls(kind) {
+        var body = document.getElementById('__ok_pb');
+        if (!body) { return; }
+        var ranges = body.querySelectorAll('input[type=range]');
+        for (var i = 0; i < ranges.length; i++) {
+            (function (input) {
+                input.addEventListener('input', function () {
+                    var key = input.getAttribute('data-key');
+                    var label = body.querySelector('.ok-val[data-val="' + key + '"]');
+                    if (label) { label.textContent = Math.round(input.value) + '%'; }
+                    setPanelValue(kind, key, Number(input.value));
+                });
+            })(ranges[i]);
+        }
+        var chips = body.querySelectorAll('.ok-chip');
+        for (var j = 0; j < chips.length; j++) {
+            (function (chip) {
+                chip.addEventListener('click', function () {
+                    var key = chip.getAttribute('data-toggle');
+                    var next = !chip.classList.contains('on');
+                    chip.classList.toggle('on', next);
+                    var s = panelSettings[kind];
+                    s[key] = next;
+                    pushPanelSettings(kind);
+                });
+            })(chips[j]);
+        }
+        var segs = body.querySelectorAll('.ok-seg span');
+        for (var k = 0; k < segs.length; k++) {
+            (function (seg) {
+                seg.addEventListener('click', function () {
+                    var key = seg.getAttribute('data-set');
+                    var parent = seg.parentElement;
+                    var siblings = parent.querySelectorAll('span');
+                    for (var m = 0; m < siblings.length; m++) {
+                        siblings[m].classList.toggle('on', siblings[m] === seg);
+                    }
+                    var label = body.querySelector('.ok-val[data-val="' + key + '"]');
+                    if (label) { label.textContent = seg.textContent; }
+                    setPanelValue(kind, key, Number(seg.getAttribute('data-value')));
+                });
+            })(segs[k]);
+        }
+        // 分段的当前值要补上（renderPanel 里只放了空占位）
+        var segRows = body.querySelectorAll('.ok-seg');
+        var keys = ['speed_plus'];
+        for (var n = 0; n < segRows.length && n < keys.length; n++) {
+            var label2 = body.querySelector('.ok-val[data-val="' + keys[n] + '"]');
+            var active = segRows[n].querySelector('span.on');
+            if (label2 && active) { label2.textContent = active.textContent; }
+        }
+    }
+
+    function openPanel(kind, anchor) {
+        var panel = document.getElementById('__ok_panel');
+        if (!panel) { return; }
+        if (panelKind === kind && panel.style.display !== 'none') { closePanel(); return; }
+        renderPanel(kind);
+        panel.style.display = 'block';
+        // 贴着工具条下沿弹出，尽量右对齐触发按钮；超出边界就往回收
+        var rect = anchor ? anchor.getBoundingClientRect() : null;
+        var width = panel.offsetWidth || 250;
+        var left = rect ? (rect.right - width) : 8;
+        left = Math.max(6, Math.min(Math.max(6, window.innerWidth - width - 6), left));
+        panel.style.left = left + 'px';
+        panel.style.top = (BAR_HEIGHT + 4) + 'px';
+    }
+
+    function closePanel() {
+        var panel = document.getElementById('__ok_panel');
+        if (panel) { panel.style.display = 'none'; }
+        panelKind = null;
+    }
+
+    function bindPanelOpeners() {
+        var pairs = [[document.getElementById('__ok_dm'), 'danmaku'],
+                     [document.getElementById('__ok_cc'), 'subtitle']];
+        for (var i = 0; i < pairs.length; i++) {
+            (function (button, kind) {
+                if (!button) { return; }
+                button.addEventListener('contextmenu', function (event) {
+                    // 右键打开设置面板（顺便压掉浏览器自己的右键菜单）
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openPanel(kind, button);
+                });
+            })(pairs[i][0], pairs[i][1]);
+        }
+        var reset = document.getElementById('__ok_pr');
+        if (reset) {
+            reset.addEventListener('click', function () {
+                if (!panelKind) { return; }
+                panelSettings[panelKind] = cloneSettings(panelKind);
+                renderPanel(panelKind);
+                pushPanelSettings(panelKind);
+            });
+        }
+        document.addEventListener('mousedown', function (event) {
+            var panel = document.getElementById('__ok_panel');
+            if (!panel || panel.style.display === 'none') { return; }
+            if (panel.contains(event.target)) { return; }
+            var id = event.target && event.target.id;
+            if (id === '__ok_dm' || id === '__ok_cc') { return; }
+            closePanel();
+        }, true);
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') { closePanel(); }
+        });
+    }
 
     function bindDrag(handle, mode) {
         if (!handle) { return; }
@@ -487,6 +776,24 @@ SWP_FRAMECHANGED = 0x0020
 LWA_ALPHA = 0x00000002
 
 # 子进程内的全局状态
+# 弹幕 / 字幕设置的默认值。选项与档位对齐 B 站播放器的「弹幕设置」面板
+# （实测 B 站 localStorage 的 dmSetting：area=50 / opacity=0.7 / fontsize=0.8 /
+#  speedplus=1；我们把 area 与 opacity 的默认放宽到 100，保持原本「铺满且不透明」
+#  的观感，用户可在面板里调回去）。
+DEFAULT_DANMAKU_SETTINGS: dict[str, Any] = {
+    "filter_scroll": False,   # 屏蔽滚动弹幕
+    "filter_fixed": False,    # 屏蔽固定（顶部/底部）弹幕
+    "area": 100,              # 显示区域（占画面高度 %）
+    "opacity": 100,           # 不透明度 %
+    "font_scale": 0.8,        # 字号倍率（B 站默认 80%）
+    "speed_plus": 1.0,        # 速度倍率
+}
+DEFAULT_SUBTITLE_SETTINGS: dict[str, Any] = {
+    "font_scale": 1.0,        # 字幕大小倍率
+    "position": 88,           # 垂直位置 %（0=贴顶，100=贴底）
+    "bg_opacity": 0,          # 字幕背景不透明度 %
+}
+
 _state: dict[str, Any] = {
     "window": None,
     "hwnd": 0,
@@ -509,6 +816,12 @@ _state: dict[str, Any] = {
     "danmaku_failed": set(),     # 拉取失败的 cid（不反复重试）
     "danmaku_items": 0,          # 载入引擎的弹幕条数
     "danmaku_debug": False,      # 离线调试模式：忽略页面上报的数据源与播放时钟
+    # 设置面板里的弹幕/字幕设置（真相源在这里，页面只负责显示与修改）
+    "danmaku_settings": dict(DEFAULT_DANMAKU_SETTINGS),
+    "subtitle_settings": dict(DEFAULT_SUBTITLE_SETTINGS),
+    # 字幕单独一层：弹幕层用颜色键抠图（做不了半透明），字幕要半透明背景，
+    # 所以走 UpdateLayeredWindow 的逐像素 alpha。见 subtitle_overlay.py。
+    "subtitle_overlay": None,
     "media_t": 0.0,              # 页面上报的播放时刻（诊断用）
     "media_paused": True,
     "media_rate": 1.0,
@@ -526,6 +839,7 @@ _danmaku_lock = threading.Lock()
 # 悬浮在窗口顶部的工具条高度（与注入的 HTML 保持一致）
 CONTROL_BAR_HEIGHT = 40
 
+
 # 弹幕横向速度跟踪：给覆盖层「本地补帧」用。
 #
 # 页面每 60ms 才推一次坐标，若直接照搬，滚动弹幕就是 16.7fps 一段一段地跳
@@ -539,7 +853,6 @@ MOTION_MIN_VX = 20.0          # 小于这个速度视为静止（固定弹幕）
 MOTION_EDGE_SLACK = 24        # 贴右边缘这么多像素内 = 正在进场，可直接用整体速度
 _motion: dict[str, tuple[float, float, float, str]] = {}
 _motion_lock = threading.Lock()
-
 
 def _attach_velocity(items: list, now: float) -> None:
     """就地给每条弹幕补上横向速度 ``vx``（页面坐标系 px/s）。"""
@@ -582,12 +895,10 @@ def _attach_velocity(items: list, now: float) -> None:
         _motion.clear()
         _motion.update(fresh)
 
-
 def _reset_motion() -> None:
     """清空速度样本（停映射 / 换页时调用，避免用到过期数据）。"""
     with _motion_lock:
         _motion.clear()
-
 
 # 游戏窗口识别：与 config.py 的 'windows' 段保持一致
 # （hwnd_class = 'UnrealWindow'，exe = 'Client-Win64-Shipping.exe'）。
@@ -601,13 +912,11 @@ _GAME_MIN_WIDTH = 640
 _GAME_MIN_HEIGHT = 360
 _GAME_LOOKUP_INTERVAL = 2.0
 
-
 def _send(status_queue, kind: str, payload: Any) -> None:
     try:
         status_queue.put((kind, payload))
     except Exception:
         pass
-
 
 def _trace(message: str) -> None:
     """把诊断信息写到 stderr（主进程会收集到日志里）。
@@ -615,7 +924,6 @@ def _trace(message: str) -> None:
     受悬浮浏览器的日志总开关控制：开关关掉时这里什么都不写。
     """
     fb_log.trace(message)
-
 
 def _coerce_handle(value) -> int:
     """把各种「窗口句柄」表示统一成 int。
@@ -642,7 +950,6 @@ def _coerce_handle(value) -> int:
     except Exception:
         return 0
 
-
 def _resolve_hwnd(window) -> int:
     """解析 pywebview 窗口在 Windows 上的 HWND。"""
     if window is None:
@@ -657,7 +964,6 @@ def _resolve_hwnd(window) -> int:
         if hwnd:
             return hwnd
     return 0
-
 
 def _apply_window_style(window, opacity: float, on_top: bool) -> int:
     """应用置顶与透明度，返回窗口句柄。
@@ -687,7 +993,6 @@ def _apply_window_style(window, opacity: float, on_top: bool) -> int:
     _sync_window_ex_style()
     return hwnd
 
-
 def _effective_opacity() -> float:
     """计算当前应使用的透明度。
 
@@ -697,7 +1002,6 @@ def _effective_opacity() -> float:
     if _state.get("click_through") and _state.get("hovering"):
         return float(_state.get("hover_opacity", 0.3))
     return float(_state.get("opacity", 0.9))
-
 
 def _sync_window_ex_style() -> None:
     """统一管理扩展样式（toolwindow / layered / transparent）+ 置顶 + 透明度。
@@ -745,7 +1049,6 @@ def _sync_window_ex_style() -> None:
     except Exception:
         pass
 
-
 # ---------------------------------------------------------------------------
 # 鼠标穿透 / 拖动 / 缩放
 # ---------------------------------------------------------------------------
@@ -764,6 +1067,23 @@ def _overlay():
     _sync_overlay_geometry()
     return overlay
 
+def _subtitle_overlay():
+    """懒创建字幕层（第一次开字幕时才建窗口）。"""
+    overlay = _state.get("subtitle_overlay")
+    if overlay is not None and overlay.running:
+        return overlay
+    if os.name != "nt":
+        return None
+    overlay = SubtitleOverlay()
+    if not overlay.start():
+        _trace(f"字幕层创建失败: {overlay.last_error}")
+        _state["subtitle_overlay"] = None
+        return None
+    _state["subtitle_overlay"] = overlay
+    _sync_overlay_settings()
+    _sync_overlay_geometry()
+    return overlay
+
 
 def _sync_overlay_geometry() -> None:
     """把覆盖层放到该去的地方（见 ``_overlay_rect``）。
@@ -778,7 +1098,9 @@ def _sync_overlay_geometry() -> None:
     if rect is None:
         return
     overlay.set_geometry(*rect)
-
+    subtitle = _state.get("subtitle_overlay")
+    if subtitle is not None:
+        subtitle.set_geometry(*rect)
 
 def _apply_mirror() -> None:
     """根据「弹幕 / 字幕」两个开关的当前状态，启停覆盖层与页面采集。
@@ -797,6 +1119,9 @@ def _apply_mirror() -> None:
             overlay.set_content([], None)
             overlay.set_engine_enabled(False)
             overlay.set_visible(False)
+        subtitle_layer = _state.get("subtitle_overlay")
+        if subtitle_layer is not None:
+            subtitle_layer.set_visible(False)
         if window is not None:
             _evaluate(window, "window.__okMirrorSet && window.__okMirrorSet(false);")
         return
@@ -812,11 +1137,16 @@ def _apply_mirror() -> None:
         and int(_state.get("danmaku_items") or 0) > 0
     )
     overlay.set_visible(True)
+    _sync_overlay_settings()
+    if subtitle:
+        subtitle_layer = _subtitle_overlay()
+        if subtitle_layer is not None:
+            subtitle_layer.set_visible(True)
     if window is not None:
         _evaluate(window, "window.__okMirrorSet && window.__okMirrorSet(true);")
         _notify_danmaku_source(window)
+        _push_settings_to_page(window)
         _sync_toolbar_state(window)
-
 
 def _set_mirror(on: bool) -> None:
     """总开关（工具条按钮 / 热键用）：同时开/关弹幕和字幕两个子开关。"""
@@ -824,7 +1154,6 @@ def _set_mirror(on: bool) -> None:
     _state["mirror_danmaku"] = on
     _state["mirror_subtitle"] = on
     _apply_mirror()
-
 
 # ---------------------------------------------------------------- 自绘模式
 #
@@ -834,7 +1163,6 @@ def _set_mirror(on: bool) -> None:
 # （见 danmaku_engine）——于是 seek / 倍速天然正确，也不存在采样间隔导致的跳帧。
 #
 # 拉不到数据（番剧要登录、被风控、非视频页…）就自动退回「抄 DOM」的老路径。
-
 
 def _on_media(data: dict) -> None:
     """页面每 200ms 上报一次播放进度：更新时钟，并在需要时触发弹幕拉取。"""
@@ -864,7 +1192,6 @@ def _on_media(data: dict) -> None:
         return
     _ensure_danmaku(data)
 
-
 def _ensure_danmaku(data: dict) -> None:
     """按需拉取当前视频的弹幕（放后台线程，别堵住消息循环）。"""
     cid = int(data.get("cid") or 0)
@@ -884,7 +1211,6 @@ def _ensure_danmaku(data: dict) -> None:
         _state["danmaku_loading"] = True
     threading.Thread(target=_load_danmaku, args=(cid, bvid, page),
                      name="DanmakuFetch", daemon=True).start()
-
 
 def _load_danmaku(cid: int, bvid: str, page: int) -> None:
     """后台线程：拉整段弹幕 → 交给覆盖层的引擎 → 切到自绘模式。"""
@@ -912,7 +1238,6 @@ def _load_danmaku(cid: int, bvid: str, page: int) -> None:
     finally:
         _state["danmaku_loading"] = False
 
-
 def _set_source(source: str, reason: str = "") -> None:
     """切换「弹幕数据从哪来」：``engine`` = 自己算位置，``dom`` = 抄页面坐标。
 
@@ -929,14 +1254,12 @@ def _set_source(source: str, reason: str = "") -> None:
     if previous != source:
         fb_log.info(f"弹幕数据源: {previous} -> {source}（{reason}）")
 
-
 def _notify_danmaku_source(window) -> None:
     """告诉页面现在用哪种数据源（engine 模式下页面可以省掉读弹幕 DOM）。"""
     if window is None:
         return
     mode = "engine" if _state.get("danmaku_source") == "engine" else "dom"
     _evaluate(window, f"window.__okSetDanmakuSource && window.__okSetDanmakuSource('{mode}');")
-
 
 def _reset_danmaku() -> None:
     """换页 / 换视频：丢掉上一段视频的弹幕，回到「等新数据」的状态。"""
@@ -951,6 +1274,56 @@ def _reset_danmaku() -> None:
     _state["danmaku_debug"] = False      # 换页后回到正常（非调试）链路
     _state["pending_source_notify"] = True
 
+def _sync_overlay_settings() -> dict:
+    """把设置应用到覆盖层：弹幕走引擎参数 + 整体 alpha，字幕走字幕层。"""
+    danmaku = dict(_state.get("danmaku_settings") or DEFAULT_DANMAKU_SETTINGS)
+    overlay = _state.get("overlay")
+    applied: dict = {}
+    if overlay is not None:
+        overlay.set_opacity(danmaku.get("opacity", 100))
+        applied = overlay.set_danmaku_options({
+            "filter_scroll": danmaku.get("filter_scroll"),
+            "filter_fixed": danmaku.get("filter_fixed"),
+            "area": danmaku.get("area"),
+            "font_scale": danmaku.get("font_scale"),
+            "speed_plus": danmaku.get("speed_plus"),
+        })
+    subtitle_overlay = _state.get("subtitle_overlay")
+    if subtitle_overlay is not None:
+        subtitle_overlay.set_options(_state.get("subtitle_settings") or {})
+    return applied
+
+def _push_settings_to_page(window) -> None:
+    """把当前设置推给页面，让设置面板显示的值与真正生效的值一致。"""
+    if window is None:
+        return
+    for kind, key in (("danmaku", "danmaku_settings"), ("subtitle", "subtitle_settings")):
+        settings = _state.get(key) or {}
+        payload = json.dumps(settings, ensure_ascii=False)
+        _evaluate(
+            window,
+            f"window.__okApplySettings && window.__okApplySettings('{kind}', {payload});",
+        )
+
+def _apply_overlay_settings(data: dict) -> None:
+    """设置面板推来的改动：合并 -> 应用 -> 回推当前值。
+
+    只接受默认值里存在的键，并交给引擎做范围收敛（例如速度会被夹到 0.5~2.0），
+    回推过去的是**收敛后的值**，页面据此更新显示。
+    """
+    kind = "subtitle" if data.get("kind") == "subtitle" else "danmaku"
+    is_subtitle = kind == "subtitle"
+    key = "subtitle_settings" if is_subtitle else "danmaku_settings"
+    defaults = DEFAULT_SUBTITLE_SETTINGS if is_subtitle else DEFAULT_DANMAKU_SETTINGS
+    incoming = data.get("settings") or {}
+    merged = dict(_state.get(key) or defaults)
+    for name, value in incoming.items():
+        if name in defaults and value is not None:
+            merged[name] = value
+    _state[key] = merged
+    _sync_overlay_settings()
+    _push_settings_to_page(_state.get("window"))
+    fb_log.debug(f"{kind} 设置: {merged}")
 
 def _set_click_through(enabled: bool) -> None:
     """切换鼠标穿透（``WS_EX_TRANSPARENT``）。"""
@@ -963,7 +1336,6 @@ def _set_click_through(enabled: bool) -> None:
         return
     _state["click_through"] = bool(enabled)
     _sync_window_ex_style()
-
 
 def _set_interactive(on: bool) -> None:
     """临时让窗口可被点击（穿透模式下需要点「恢复」时使用）。"""
@@ -984,7 +1356,6 @@ def _set_interactive(on: bool) -> None:
     except Exception:
         pass
 
-
 def _get_window_rect():
     """读取窗口屏幕矩形（left/top/right/bottom）。"""
     if os.name != "nt" or ctypes is None:
@@ -1001,7 +1372,6 @@ def _get_window_rect():
         _trace(f"_get_window_rect 失败: {error}")
     return None
 
-
 def _is_window(hwnd: int) -> bool:
     """句柄是否仍是有效窗口。"""
     if os.name != "nt" or ctypes is None or not hwnd:
@@ -1010,7 +1380,6 @@ def _is_window(hwnd: int) -> bool:
         return bool(_user32.IsWindow(hwnd))
     except Exception:
         return False
-
 
 def _window_process_exe(hwnd: int) -> str:
     """窗口所属进程的可执行文件名（小写，失败返回空串）。"""
@@ -1039,7 +1408,6 @@ def _window_process_exe(hwnd: int) -> str:
                 _kernel32.CloseHandle(handle)
             except Exception:
                 pass
-
 
 def _find_game_hwnd() -> int:
     """按窗口类名 + 进程名找到「游戏窗口」，返回客户区面积最大的那个（0 = 没找到）。
@@ -1078,7 +1446,6 @@ def _find_game_hwnd() -> int:
         return 0
     return max(candidates)[1] if candidates else 0
 
-
 def _client_rect_on_screen(hwnd: int):
     """窗口「客户区」（即游戏画面）在屏幕上的 ``[x, y, width, height]``。"""
     if os.name != "nt" or ctypes is None or not hwnd:
@@ -1097,7 +1464,6 @@ def _client_rect_on_screen(hwnd: int):
     except Exception as error:
         _trace(f"读取游戏画面矩形失败: {error}")
         return None
-
 
 def _refresh_game_hwnd(force: bool = False) -> int:
     """刷新缓存的游戏窗口句柄（默认 2 秒内不重复枚举）。
@@ -1120,7 +1486,6 @@ def _refresh_game_hwnd(force: bool = False) -> int:
     _state["game_hwnd_ts"] = now
     return hwnd
 
-
 def _first_font_family(css_family: str) -> str:
     """从 CSS ``font-family`` 列表里取第一个真实字体名。
 
@@ -1135,7 +1500,6 @@ def _first_font_family(css_family: str) -> str:
             continue
         return name
     return ""
-
 
 def _parse_mirror_style(style: Any) -> dict:
     """把页面采集到的 ``{ff, fw, fs, blur}`` 规整成覆盖层用的样式。"""
@@ -1157,7 +1521,6 @@ def _parse_mirror_style(style: Any) -> dict:
         "blur": blur if blur > 0 else 1.0,
     }
 
-
 def _overlay_rect():
     """覆盖层该放在哪：``(x, y, width, height)``。
 
@@ -1175,7 +1538,6 @@ def _overlay_rect():
         return (game[0], game[1], game[2], game[3])
     return (rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top)
 
-
 def _restore_window(window) -> None:
     """从最小化状态恢复窗口。"""
     if os.name != "nt":
@@ -1190,7 +1552,6 @@ def _restore_window(window) -> None:
             user32.ShowWindow(hwnd, 9)  # SW_RESTORE
     except Exception:
         pass
-
 
 def _handle_drag_action(payload: dict) -> dict:
     """处理来自悬浮工具条的拖动 / 缩放请求，返回本轮几何结果。"""
@@ -1271,7 +1632,6 @@ def _handle_drag_action(payload: dict) -> dict:
     _sync_overlay_geometry()
     return {}
 
-
 def _apply_alpha(opacity: float) -> None:
     if os.name != "nt":
         return
@@ -1282,7 +1642,6 @@ def _apply_alpha(opacity: float) -> None:
             ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0, int(opacity * 255), LWA_ALPHA)
         except Exception:
             pass
-
 
 def _evaluate(window, script: str, timeout: float = 5.0):
     """执行页面 JS，并加超时保护。
@@ -1309,7 +1668,6 @@ def _evaluate(window, script: str, timeout: float = 5.0):
         return None
     return box.get("value")
 
-
 def _poll_states(window, status_queue, stop_event) -> None:
     """周期性把视频状态回传给主进程。"""
     while not stop_event.is_set():
@@ -1320,7 +1678,6 @@ def _poll_states(window, status_queue, stop_event) -> None:
         except Exception:
             pass
         stop_event.wait(0.5)
-
 
 def run_browser_process(config: dict, command_queue, status_queue) -> None:
     """子进程主函数：创建窗口、进入事件循环、处理指令。"""
@@ -1380,17 +1737,26 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
                         if style:
                             overlay.set_style(style)
                         subtitle = data.get("sub") if _state.get("mirror_subtitle") else None
+                        # 字幕交给**字幕层**（独立的逐像素半透明窗口），
+                        # 弹幕层只画弹幕 —— 这样字幕的大小/位置/背景三个设置才能生效。
+                        subtitle_layer = _state.get("subtitle_overlay")
+                        if subtitle_layer is not None:
+                            subtitle_layer.set_content(subtitle, style or {})
                         if _state.get("danmaku_source") == "engine":
                             # 自绘模式：弹幕内容由引擎按播放时刻算，页面推来的坐标一律不用。
                             # 字幕没有接口可拿（要登录），所以继续走页面采集。
-                            overlay.set_content([], subtitle)
+                            overlay.set_content([], None)
                         else:
                             danmaku = (list(data.get("dm") or [])
                                        if _state.get("mirror_danmaku") else [])
                             # 估算横向速度：覆盖层据此在两次推送之间本地补帧（60fps 平滑滚动）
                             if danmaku:
                                 _attach_velocity(danmaku, time.time())
-                            overlay.set_content(danmaku, subtitle)
+                            overlay.set_content(danmaku, None)
+                    return True
+                if action == "overlay_settings":
+                    # 工具条上右键弹出的设置面板改了东西
+                    _apply_overlay_settings(payload.get("data") or {})
                     return True
                 if action == "media":
                     # 页面每 200ms 上报一次播放进度（自绘模式的唯一输入）
@@ -1669,6 +2035,9 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
                                          window_rect.bottom - window_rect.top]
                                         if window_rect is not None else None),
                         "overlay": overlay.debug_info() if overlay is not None else None,
+                        "subtitle_layer": (subtitle_layer.debug_info()
+                                           if (subtitle_layer := _state.get("subtitle_overlay"))
+                                           else None),
                     }
                     _send(status_queue, "inspect_result", (request_id, info))
                 elif command == "debug_load_danmaku":
@@ -1683,6 +2052,9 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
                         _state["danmaku_source"] = "engine" if items else "dom"
                         overlay.set_engine_enabled(
                             bool(items) and bool(_state.get("mirror_danmaku")))
+                elif command == "debug_set_settings":
+                    if isinstance(argument, dict):
+                        _apply_overlay_settings(argument)
                 elif command == "debug_set_playback":
                     # 离线调试/测试用：直接设定播放时刻（不走页面上报）
                     overlay = _state.get("overlay")
@@ -1735,6 +2107,10 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
         if overlay is not None:
             overlay.stop()
             _state["overlay"] = None
+        subtitle_layer = _state.get("subtitle_overlay")
+        if subtitle_layer is not None:
+            subtitle_layer.stop()
+            _state["subtitle_overlay"] = None
         try:
             window.destroy()
         except Exception:
@@ -1759,7 +2135,6 @@ def _install_scripts(window) -> None:
     _evaluate(window, CONTROL_BAR_JS)
     _evaluate(window, MIRROR_JS)
 
-
 def _sync_toolbar_state(window) -> None:
     """把穿透 / 置顶 / 弹幕 / 字幕状态同步给工具条，用于刷新按钮外观。"""
     if window is None:
@@ -1774,7 +2149,6 @@ def _sync_toolbar_state(window) -> None:
         f"{click_through}, {on_top}, {mirror_danmaku}, {mirror_subtitle});",
     )
 
-
 def _poll_toolbar(window, status_queue, stop_event) -> None:
     """看门狗：页面跳转或 SPA 重渲染会冲掉工具条，这里定时补注入。"""
     while not stop_event.is_set():
@@ -1786,7 +2160,6 @@ def _poll_toolbar(window, status_queue, stop_event) -> None:
         except Exception:
             pass
         stop_event.wait(2.0)
-
 
 def _poll_geometry(window, status_queue, stop_event) -> None:
     """兜底：窗口几何被外部改变时同步回主进程。"""
@@ -1804,7 +2177,6 @@ def _poll_geometry(window, status_queue, stop_event) -> None:
         if _state.get("mirror_on"):
             _sync_overlay_geometry()
         stop_event.wait(0.5)
-
 
 def _poll_hover(window, status_queue, stop_event) -> None:
     """穿透模式下，检测鼠标是否悬停在窗口内，悬停时降低透明度。
@@ -1832,20 +2204,17 @@ def _poll_hover(window, status_queue, stop_event) -> None:
             _sync_window_ex_style()
         stop_event.wait(0.1)
 
-
 def _apply_alpha(opacity: float) -> None:
     if os.name != "nt":
         return
     _state["opacity"] = float(opacity)
     _sync_window_ex_style()
 
-
 def _apply_top(on_top: bool) -> None:
     if os.name != "nt":
         return
     _state["on_top"] = bool(on_top)
     _sync_window_ex_style()
-
 
 def _handle_rate(window, status_queue, command: str) -> None:
     payload = _evaluate(window, "window.__okStatus && window.__okStatus();")
@@ -1860,7 +2229,6 @@ def _handle_rate(window, status_queue, command: str) -> None:
     value = json.dumps(round(target, 2))
     _send(status_queue, "state", _evaluate(window, f"window.__okSetRate && window.__okSetRate({value});"))
 
-
 def _handle_volume(window, status_queue, step: float, command: str) -> None:
     """在子进程内读取实际音量并增减，避免主进程缓存的状态有延迟。"""
     payload = _evaluate(window, "window.__okStatus && window.__okStatus();")
@@ -1874,7 +2242,6 @@ def _handle_volume(window, status_queue, step: float, command: str) -> None:
     target = max(0.0, min(1.0, current + delta))
     value = json.dumps(round(target, 2))
     _send(status_queue, "state", _evaluate(window, f"window.__okSetVolume && window.__okSetVolume({value});"))
-
 
 if __name__ == "__main__":  # pragma: no cover
     # 允许单独调试：python -m src.gui.floating_browser.webview_process

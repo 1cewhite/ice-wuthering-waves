@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -610,6 +611,24 @@ def check_danmaku_mirror(seconds: float) -> int:
         time.sleep(0.4)
     time.sleep(0.8)
 
+    # 设置面板的值会持久化在页面 localStorage 里，上一次真机测试留下的
+    # 字号/速度/显示区域会污染这里的断言（弹幕提前出屏、被类型过滤掉…），
+    # 所以先把两边都重置成默认值。
+    browser.probe_js(
+        "(function(){"
+        "try{localStorage.removeItem('ok_floating_browser_overlay_settings');}catch(e){}"
+        "if(window.__okApplySettings){"
+        "window.__okApplySettings('danmaku',{filter_scroll:false,filter_fixed:false,"
+        "area:100,opacity:100,font_scale:0.8,speed_plus:1.0});"
+        "window.__okApplySettings('subtitle',{font_scale:1.0,position:88,bg_opacity:0});}"
+        "return true;})()", timeout=6)
+    browser.debug_set_overlay_settings("danmaku", {"filter_scroll": False, "filter_fixed": False,
+                                                   "area": 100, "opacity": 100,
+                                                   "font_scale": 0.8, "speed_plus": 1.0})
+    browser.debug_set_overlay_settings("subtitle", {"font_scale": 1.0, "position": 88,
+                                                   "bg_opacity": 0})
+    time.sleep(0.6)
+
     info = browser.mirror_debug(timeout=5.0)
     if isinstance(info, dict) and info.get("on") is False and info.get("overlay") is None:
         print("  [OK] 默认不开启映射（没有覆盖层窗口）")
@@ -635,7 +654,8 @@ def check_danmaku_mirror(seconds: float) -> int:
          f"覆盖层位置+尺寸 = {where}，实际 {overlay.get('geometry')}"),
         (overlay.get("last_draw", [0, 0, 0, False])[2] >= 1,
          f"只镜像了真实可见的弹幕（opacity=0 与空节点已过滤）-> {overlay.get('last_draw')}"),
-        (overlay.get("last_draw", [0, 0, 0, False])[3] is True, "字幕也被采集到了"),
+        (overlay.get("last_draw", [0, 0, 0, False])[3] is False,
+         "弹幕层不再画字幕（字幕已改由独立的字幕层渲染，见下方设置段）"),
     ]
     for ok, label in checks:
         print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
@@ -643,8 +663,16 @@ def check_danmaku_mirror(seconds: float) -> int:
             failures += 1
 
     # 「滚动弹幕要平滑」：页面给出每条弹幕的横向速度，覆盖层据此按 60fps 本地补帧
-    rolling = [item for item in (overlay.get("frame_items") or [])
-               if abs(float(item.get("vx") or 0)) >= 20]
+    # 测试页的滚动弹幕是 4 秒一轮的 CSS 动画，有很短一段时间会滚出视口；
+    # 而且速度要两次采样才能差分出来 —— 所以这里轮询等一会儿，别一次取不到就判失败。
+    rolling = []
+    for _ in range(8):
+        rolling = [item for item in (overlay.get("frame_items") or [])
+                   if abs(float(item.get("vx") or 0)) >= 20]
+        if rolling:
+            break
+        time.sleep(0.4)
+        overlay = (browser.mirror_debug(timeout=4.0) or {}).get("overlay") or {}
     if rolling:
         sample = rolling[0]
         print(f"  [OK] 滚动弹幕速度已估算 vx={round(float(sample.get('vx')), 1)}px/s"
@@ -1007,10 +1035,12 @@ def check_danmaku_mirror(seconds: float) -> int:
     if not sub_state_ok:
         failures += 1
     sub_draw = (ov_sub.get("last_draw") or [0, 0, 0, False])
-    if sub_draw[2] == 0 and sub_draw[3]:
-        print("  [OK] 只开字幕时只画字幕、不画弹幕")
+    sub_layer = only_sub.get("subtitle_layer") or {}
+    if sub_draw[2] == 0 and not sub_draw[3] and sub_layer.get("shown") is True:
+        print("  [OK] 只开字幕时弹幕层留空、内容全在字幕层上")
     else:
-        print(f"  [FAIL] 只开字幕时绘制内容不对: dm={sub_draw[2]} sub={sub_draw[3]}")
+        print(f"  [FAIL] 只开字幕时内容不对: 弹幕层 dm={sub_draw[2]} sub={sub_draw[3]} "
+              f"字幕层 shown={sub_layer.get('shown')}")
         failures += 1
 
     click_toolbar("__ok_cc")
@@ -1027,6 +1057,124 @@ def check_danmaku_mirror(seconds: float) -> int:
     else:
         print("  [FAIL] 关掉后仍有开关处于开启状态")
         failures += 1
+
+    # ---- 设置面板：右键工具条上的弹幕/字幕按钮 ----
+    print("\n  --- 设置面板（右键工具条按钮）---")
+    browser.set_mirror(True)
+    time.sleep(1.0)
+
+    def probe_panel(button_id: str) -> dict:
+        """右键某个按钮 -> 读回面板状态与选项标签。"""
+        browser.probe_js(
+            "(function(){var b=document.getElementById('%s');"
+            "b.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true}));"
+            "return true;})()" % button_id, timeout=6)
+        time.sleep(0.7)
+        raw = browser.probe_js(
+            "(function(){var p=document.getElementById('__ok_panel');"
+            "if(!p){return null;}var out=[];"
+            "p.querySelectorAll('.ok-label span:first-child').forEach("
+            "function(e){out.push(e.textContent);});"
+            "return JSON.stringify({shown:p.style.display!=='none',"
+            "title:document.getElementById('__ok_pt').textContent,labels:out,"
+            "ranges:p.querySelectorAll('input[type=range]').length,"
+            "chips:p.querySelectorAll('.ok-chip').length,"
+            "segs:p.querySelectorAll('.ok-seg span').length});})()", timeout=6)
+        try:
+            return json.loads(raw) if raw else {}
+        except (TypeError, ValueError):
+            return {}
+
+    dm_panel = probe_panel("__ok_dm")
+    sub_panel = probe_panel("__ok_cc")
+    for ok, label in [
+        (dm_panel.get("shown") is True and dm_panel.get("title") == "弹幕设置",
+         f"右键弹幕按钮弹出「弹幕设置」（{dm_panel.get('title')}）"),
+        (dm_panel.get("chips") == 2, f"类型过滤有滚动/固定两项（{dm_panel.get('chips')}）"),
+        (dm_panel.get("ranges") == 3, f"弹幕面板三个滑块（{dm_panel.get('ranges')}）"),
+        (dm_panel.get("segs") == 5, f"弹幕速度五档（{dm_panel.get('segs')}）"),
+        (sub_panel.get("shown") is True and sub_panel.get("title") == "字幕设置",
+         f"右键字幕按钮切到「字幕设置」（{sub_panel.get('title')}）"),
+        (sub_panel.get("ranges") == 3, f"字幕面板三个滑块（{sub_panel.get('ranges')}）"),
+        (len([x for x in (sub_panel.get("labels") or []) if "字幕" in x]) == 3,
+         f"字幕面板三项：{sub_panel.get('labels')}"),
+    ]:
+        print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
+        if not ok:
+            failures += 1
+
+    # ---- 弹幕设置真的作用到渲染上 ----
+    # 本地测试页没有弹幕接口，先灌一段进引擎 —— 引擎没数据就不会切行，
+    # 「显示区域」这类布局设置根本无从验证
+    browser.debug_load_danmaku([{"t0": round(i * 0.15, 3), "mode": 1, "size": 25,
+                                 "color": 0xFFFFFF, "text": f"设置第{i}条"}
+                                for i in range(30)])
+    browser.debug_set_playback(1.0, 1.0, False)
+    time.sleep(0.8)
+    browser.debug_set_overlay_settings("danmaku", {"area": 40, "opacity": 60,
+                                                   "font_scale": 1.4, "speed_plus": 2.0,
+                                                   "filter_fixed": True})
+    time.sleep(1.5)
+    cfg = browser.mirror_debug(timeout=6) or {}
+    cfg_overlay = cfg.get("overlay") or {}
+    cfg_stats = cfg_overlay.get("engine_stats") or {}
+    cfg_options = cfg_stats.get("options") or {}
+    geometry_now = cfg_overlay.get("geometry") or [0, 0, 600, 400]
+    expect_rows = int(round(geometry_now[3] * 0.40 / 24))
+    for ok, label in [
+        (cfg_overlay.get("opacity_percent") == 60,
+         f"不透明度生效（{cfg_overlay.get('opacity_percent')}）"),
+        (round(float(cfg_options.get("area") or 0)) == 40,
+         f"显示区域生效（{cfg_options.get('area')}）"),
+        (abs(float(cfg_options.get("font_scale") or 0) - 1.4) < 0.01,
+         f"字号倍率生效（{cfg_options.get('font_scale')}）"),
+        (abs(float(cfg_options.get("speed_plus") or 0) - 2.0) < 0.01,
+         f"速度倍率生效（{cfg_options.get('speed_plus')}）"),
+        (cfg_options.get("filter_fixed") is True, "屏蔽固定弹幕生效"),
+        (abs(int(cfg_stats.get("rows") or 0) - expect_rows) <= 1,
+         f"行数随显示区域变（{cfg_stats.get('rows')}，"
+         f"覆盖层高 {geometry_now[3]} × 40% ÷ 24 = {expect_rows}）"),
+    ]:
+        print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
+        if not ok:
+            failures += 1
+
+    # ---- 字幕设置作用到独立的字幕层（真逐像素半透明）----
+    browser.set_mirror_subtitle(True)
+    time.sleep(2.0)
+    browser.debug_set_overlay_settings("subtitle", {"font_scale": 1.5, "position": 35,
+                                                    "bg_opacity": 60})
+    time.sleep(1.5)
+    subtitle_layer = (browser.mirror_debug(timeout=6) or {}).get("subtitle_layer") or {}
+    layer_options = subtitle_layer.get("options") or {}
+    drawn = subtitle_layer.get("last_draw")
+    for ok, label in [
+        (bool(subtitle_layer.get("hwnd")) and subtitle_layer.get("shown") is True,
+         "字幕层窗口已创建并显示（颜色键做不了半透明，所以它单独一层）"),
+        (bool(drawn), f"字幕层画了内容（{drawn}）"),
+        (abs(float(layer_options.get("font_scale") or 0) - 1.5) < 0.01,
+         f"字幕大小生效（{layer_options.get('font_scale')}）"),
+        (abs(float(layer_options.get("position") or 0) - 35) < 0.01,
+         f"字幕位置生效（{layer_options.get('position')}）"),
+        (abs(float(layer_options.get("bg_opacity") or 0) - 60) < 0.01,
+         f"字幕背景不透明度生效（{layer_options.get('bg_opacity')}）"),
+    ]:
+        print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
+        if not ok:
+            failures += 1
+
+    if drawn:
+        layer_geo = subtitle_layer.get("geometry") or [0, 0, 600, 400]
+        centered = abs(drawn[0] - (layer_geo[0] + (layer_geo[2] - drawn[2]) / 2)) <= 2
+        expect_y = layer_geo[1] + layer_geo[3] * 0.35 - drawn[3] / 2
+        for ok, label in [
+            (centered, f"字幕水平居中（x={drawn[0]}，覆盖层 {layer_geo}）"),
+            (abs(drawn[1] - expect_y) <= 3,
+             f"字幕按 35% 位置摆放（y={drawn[1]}，期望 ≈{expect_y:.0f}）"),
+        ]:
+            print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
+            if not ok:
+                failures += 1
 
     browser.stop()
     try:

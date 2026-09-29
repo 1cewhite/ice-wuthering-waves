@@ -67,6 +67,7 @@ SW_HIDE = 0
 SW_SHOWNOACTIVATE = 4
 
 LWA_COLORKEY = 0x00000001
+LWA_ALPHA = 0x00000002
 # 颜色键：**纯黑**。为什么不用品红（0xFF00FF）？因为颜色键没法做半透明，
 # 文字抗锯齿的边缘像素是「描边色 ↔ 颜色键」的混合：用黑当键时混合结果还是黑，
 # 看不见；用品红当键时混合结果是**紫色**，会在每个字外面形成一圈紫边
@@ -367,6 +368,9 @@ class DanmakuOverlay:
         self._pending_load: Any = _UNSET
         # 播放时钟：页面每 ~200ms 上报一次，覆盖层在两次上报之间按 rate 插值
         self._playback: dict = {"t": 0.0, "rate": 1.0, "paused": True, "ts": 0.0}
+        # 弹幕整体不透明度（%）：走分层窗口的 alpha 通道，和颜色键可以共存
+        self._opacity_percent = 100
+        self._applied_alpha = -1
 
 
     # ------------------------------------------------------------------
@@ -506,6 +510,29 @@ class DanmakuOverlay:
     def engine_enabled(self) -> bool:
         return bool(self._use_engine)
 
+    # ------------------------------------------------------------------
+    # 弹幕设置
+    # ------------------------------------------------------------------
+    def set_opacity(self, percent: float) -> int:
+        """弹幕整体不透明度（5~100）。0 会让画面完全看不见，所以下限取 5。"""
+        with self._lock:
+            value = int(max(5, min(100, round(float(percent or 100)))))
+            if value != self._opacity_percent:
+                self._opacity_percent = value
+                self._dirty = True
+            return self._opacity_percent
+
+    def set_danmaku_options(self, options: Optional[dict]) -> dict:
+        """把弹幕设置转给引擎（类型过滤 / 显示区域 / 字号 / 速度）。"""
+        with self._lock:
+            result = self._engine.set_options(options)
+            self._dirty = True
+            return result
+
+    def _layer_alpha(self) -> int:
+        """不透明度百分比 -> 分层窗口的 alpha 值。"""
+        return int(round(255 * max(5, min(100, self._opacity_percent)) / 100.0))
+
     def debug_info(self) -> dict:
         """诊断用：窗口矩形、客户区矩形、最后一次绘制的参数等。"""
         hwnd = self._hwnd
@@ -525,6 +552,7 @@ class DanmakuOverlay:
                 "last_error": self._last_error,
                 # 自绘模式：数据源、播放时钟、引擎状态
                 "engine_enabled": bool(self._use_engine),
+                "opacity_percent": self._opacity_percent,
                 "engine_loaded": self._engine.loaded,
                 "engine_stats": self._engine.stats(),
                 "playback": {"t": round(float(self._playback.get("t") or 0.0), 3),
@@ -592,7 +620,9 @@ class DanmakuOverlay:
             return
         self._hwnd = int(hwnd)
         # 颜色键抠图：品红像素全部透明
-        user32.SetLayeredWindowAttributes(hwnd, COLOR_KEY, 0, LWA_COLORKEY)
+        user32.SetLayeredWindowAttributes(hwnd, COLOR_KEY, self._layer_alpha(),
+                                           LWA_COLORKEY | LWA_ALPHA)
+        self._applied_alpha = self._layer_alpha()
         user32.SetWindowPos(hwnd, None, -32000, -32000, 10, 10,
                             SWP_NOACTIVATE | SWP_NOZORDER)
 
@@ -807,8 +837,13 @@ class DanmakuOverlay:
             # 分层窗口的合成表面是按当时的尺寸建立的，改尺寸后要重新应用一次属性，
             # 否则只有旧尺寸那块区域能画出来。
             self._drawn_geometry = geometry
-            _user32.SetLayeredWindowAttributes(hwnd, COLOR_KEY, 0, LWA_COLORKEY)
             self._release_buffer()
+        alpha = self._layer_alpha()
+        if resized or alpha != self._applied_alpha:
+            # 颜色键管「哪儿透明」，alpha 管「整体多不透明」，两者可以同时生效
+            self._applied_alpha = alpha
+            _user32.SetLayeredWindowAttributes(hwnd, COLOR_KEY, alpha,
+                                               LWA_COLORKEY | LWA_ALPHA)
         if not visible:
             _user32.ShowWindow(hwnd, SW_HIDE)
             self._shown = False
@@ -1137,6 +1172,8 @@ MIRROR_JS = r"""
     window.__okMirrorSet = function (on) {
         enabled = !!on;
         if (enabled) {
+            // 把设置面板里保存过的设置先套上（重启后设置依然生效）
+            if (window.__okPushSettings) { window.__okPushSettings(); }
             if (timer == null) {
                 timer = setInterval(tick, 60);
                 lastMediaAt = 0;
