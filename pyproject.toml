@@ -11,7 +11,8 @@ dependencies = [
     "onnxocr-ppocrv5>=0.0.20",
     "openvino",
     "opencv-python",
-    "pyappify>=1.0.13"
+    "pyappify>=1.0.13",
+    "pywebview>=5.4",
 ]
 
 [project.optional-dependencies]

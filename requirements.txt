@@ -68,6 +68,8 @@ pysidesix-frameless-window==0.8.2
     # via
     #   ok-script
     #   pyside6-fluent-widgets
+pywebview==5.4
+    # via ok-ww (pyproject.toml) - 悬浮浏览器
 pywin32==311
     # via
     #   ok-script

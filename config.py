@@ -149,6 +149,52 @@ monthly_card_config_option = ConfigOption('Monthly Card Config', {
     'Monthly Card Time': 'Your computer\'s local time when the monthly card will popup, hour in (1-24)'
 })
 
+floating_browser_config_option = ConfigOption('Floating Browser', {
+    'url': 'https://www.bilibili.com/',
+    'width': 560,
+    'height': 340,
+    'opacity': 0.9,
+    'on_top': True,
+    'click_through': False,
+    'seek_step': 5,
+    'hover_opacity': 0.3,
+    'log_output': False,
+    'mirror_danmaku': False,
+    'mirror_subtitle': False,
+}, description='Floating video browser over the game window', config_description={
+    'url': 'Web page opened by the floating browser (e.g. a video site)',
+    'width': 'Last saved width of the floating window in pixels (drag its edge to change)',
+    'height': 'Last saved height of the floating window in pixels (drag its edge to change)',
+    'opacity': 'Window opacity from 0.2 to 1.0, change it with the on-window slider',
+    'on_top': 'Keep the floating browser above the game window',
+    'click_through': 'Let mouse clicks pass through the floating window to the game',
+    'seek_step': 'Seconds to skip when using the forward/backward hotkey',
+    'hover_opacity': 'Opacity applied while the mouse hovers the window in click-through mode (0.05 to 1.0)',
+    'log_output': 'Master switch for ALL floating browser output (console and log file); off by default',
+    'mirror_danmaku': 'Mirror the video danmaku onto the topmost layer over the game screen',
+    'mirror_subtitle': 'Mirror the video subtitles onto the topmost layer over the game screen',
+})
+
+floating_browser_hotkey_config_option = ConfigOption('Floating Browser Hotkey', {
+    'play_pause': 'alt+s',
+    'forward': 'alt+d',
+    'backward': 'alt+a',
+    'hold_fast_forward': 'alt+f',
+    'volume_up': 'alt+c',
+    'volume_down': 'alt+x',
+    'toggle_click_through': '`',
+    'toggle_mirror': 'alt+m',
+}, description='Global hotkeys for the floating browser video control', config_description={
+    'play_pause': 'Play or pause the video (e.g. alt+s)',
+    'forward': 'Seek forward by the configured step (e.g. alt+d)',
+    'backward': 'Seek backward by the configured step (e.g. alt+a)',
+    'hold_fast_forward': 'Hold to play at 3x speed, release to restore (e.g. alt+f)',
+    'volume_up': 'Increase volume by 10% (e.g. alt+c)',
+    'volume_down': 'Decrease volume by 10% (e.g. alt+z)',
+    'toggle_click_through': 'Toggle mouse click-through on/off (e.g. ` for the backquote key alone)',
+    'toggle_mirror': 'Mirror the video danmaku / subtitles onto the game screen (topmost layer)',
+})
+
 config = {
     'debug': False,  # Optional, default: False
     'custom_tasks': True,
@@ -158,8 +204,10 @@ config = {
     'config_folder': 'configs',
     'blur_area': blur_area,
     'gui_icon': 'icons/icon.png',
-    'global_configs': [key_config_option, char_config_option, monthly_card_config_option],
-    'custom_tabs': [["src.gui.CharacterCodeTab", "CharacterCodeTab"]],
+    'global_configs': [key_config_option, char_config_option, monthly_card_config_option,
+                       floating_browser_config_option, floating_browser_hotkey_config_option],
+    'custom_tabs': [["src.gui.CharacterCodeTab", "CharacterCodeTab"],
+                    ["src.gui.floating_browser.tab", "FloatingBrowserTab"]],
     'ocr': {
         'lib': 'onnxocr',
         'auto_simplify': True,
