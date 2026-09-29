@@ -60,7 +60,8 @@ MIRROR_HTML_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "_floating_browser_mirror.html"
 )
 
-# 模拟 B 站弹幕/字幕的 DOM：一条可见弹幕、一条 opacity=0 的（播放器池化节点，不该被镜像）、一条字幕。
+# 模拟 B 站弹幕/字幕的 DOM：一条可见弹幕、一条**真滚动**的弹幕（验证速度估算+本地补帧）、
+# 一条 opacity=0 的（播放器池化节点，不该被镜像）、一条字幕。
 # 样式照抄 B 站实测值（SimHei / 700 / text-shadow 0 0 1px 黑），用于验证「样式与 B 站一致」。
 # 字幕故意做成「整宽容器 + 居中文字」——B 站就是这样，直接用容器矩形画会偏，
 # 必须用 Range 量出真实文字矩形（这也正是「字幕位置不对」的根因）。
@@ -68,11 +69,14 @@ DM_CSS = "font-family:SimHei;font-weight:700;text-shadow:rgb(0, 0, 0) 0px 0px 1p
 MIRROR_HTML = """<!DOCTYPE html>
 <html><head><meta charset="utf-8"><style>
 html,body{margin:0;height:100%;background:#101216}
+@keyframes okroll { from { transform: translateX(600px); } to { transform: translateX(-120px); } }
+.ok-rolling { animation: okroll 4s linear infinite; }
 </style></head><body>
 <video></video>
 <div class="bili-danmaku-x-dm" style="position:absolute;left:40px;top:60px;font-size:20px;color:rgb(255,255,255);__DM_CSS__">可见弹幕</div>
-<div class="bili-danmaku-x-dm" style="position:absolute;left:200px;top:120px;font-size:20px;color:rgb(255,212,0);opacity:0;__DM_CSS__">不可见弹幕</div>
-<div class="bili-danmaku-x-dm" style="position:absolute;left:40px;top:170px;font-size:20px;color:rgb(255,255,255);__DM_CSS__"></div>
+<div class="bili-danmaku-x-dm ok-rolling" style="position:absolute;left:0;top:100px;font-size:20px;color:rgb(255,255,255);__DM_CSS__">滚动弹幕</div>
+<div class="bili-danmaku-x-dm" style="position:absolute;left:200px;top:140px;font-size:20px;color:rgb(255,212,0);opacity:0;__DM_CSS__">不可见弹幕</div>
+<div class="bili-danmaku-x-dm" style="position:absolute;left:40px;top:180px;font-size:20px;color:rgb(255,255,255);__DM_CSS__"></div>
 <div class="bili-subtitle-x-subtitle-panel-text" style="position:absolute;left:0;top:300px;width:100%;text-align:center;font-size:20px;color:rgb(255,255,255);__DM_CSS__">测试字幕</div>
 </body></html>
 """.replace("__DM_CSS__", DM_CSS)
@@ -88,6 +92,11 @@ def write_test_page() -> str:
     with open(HTML_PATH, "w", encoding="utf-8") as handle:
         handle.write(TEST_HTML)
     return "file:///" + HTML_PATH.replace("\\", "/")
+
+
+# 窗口过程必须保活：ctypes 回调对象一旦被 GC，系统再给这个窗口派消息
+# （DestroyWindow 会发 WM_DESTROY）就会访问已释放的内存 —— 进程直接 access violation。
+_FAKE_WNDPROC_REFS: list = []
 
 
 def make_fake_game_window(x: int, y: int, width: int, height: int):
@@ -122,6 +131,7 @@ def make_fake_game_window(x: int, y: int, width: int, height: int):
     wndproc = ctypes.WINFUNCTYPE(
         ctypes.c_ssize_t, ctypes.c_void_p, ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p
     )(lambda h, m, w, l: user32.DefWindowProcW(h, m, w, l))
+    _FAKE_WNDPROC_REFS.append(wndproc)
     user32.DefWindowProcW.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_void_p,
                                       ctypes.c_void_p]
     user32.DefWindowProcW.restype = ctypes.c_ssize_t
@@ -623,14 +633,55 @@ def check_danmaku_mirror(seconds: float) -> int:
         (overlay.get("shown") is True, "覆盖层已显示"),
         (list(overlay.get("geometry") or []) == expected,
          f"覆盖层位置+尺寸 = {where}，实际 {overlay.get('geometry')}"),
-        (overlay.get("last_draw", [0, 0, 0, False])[2] == 1,
-         f"只镜像了可见弹幕（1 条，opacity=0 的已过滤）-> {overlay.get('last_draw')}"),
+        (overlay.get("last_draw", [0, 0, 0, False])[2] >= 1,
+         f"只镜像了真实可见的弹幕（opacity=0 与空节点已过滤）-> {overlay.get('last_draw')}"),
         (overlay.get("last_draw", [0, 0, 0, False])[3] is True, "字幕也被采集到了"),
     ]
     for ok, label in checks:
         print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
         if not ok:
             failures += 1
+
+    # 「滚动弹幕要平滑」：页面给出每条弹幕的横向速度，覆盖层据此按 60fps 本地补帧
+    rolling = [item for item in (overlay.get("frame_items") or [])
+               if abs(float(item.get("vx") or 0)) >= 20]
+    if rolling:
+        sample = rolling[0]
+        print(f"  [OK] 滚动弹幕速度已估算 vx={round(float(sample.get('vx')), 1)}px/s"
+              f"（{sample.get('t')!r}）")
+        print(f"  {'[OK]' if overlay.get('animating') is True else '[FAIL]'} "
+              f"覆盖层进入补帧模式（animating={overlay.get('animating')}）")
+        if overlay.get("animating") is not True:
+            failures += 1
+        # 用帧计数器算实际帧率（硬指标）。注意别频繁查询 —— 每次查询都会抢 GIL，
+        # 把待测的帧率本身压下去，所以只在头尾各取一次计数。
+        first = browser.mirror_debug(timeout=3.0) or {}
+        start_frames = int((first.get("overlay") or {}).get("frames") or 0)
+        started = time.time()
+        time.sleep(0.8)
+        second = browser.mirror_debug(timeout=3.0) or {}
+        second_overlay = second.get("overlay") or {}
+        span = time.time() - started
+        drawn = int(second_overlay.get("frames") or 0) - start_frames
+        fps = drawn / span if span > 0 else 0
+        best_dt = float(second_overlay.get("frame_dt") or 0)
+        for _ in range(3):
+            time.sleep(0.02)
+            probe = browser.mirror_debug(timeout=3.0) or {}
+            best_dt = max(best_dt, float((probe.get("overlay") or {}).get("frame_dt") or 0))
+        print(f"  {'[OK]' if fps >= 40 else '[FAIL]'} 实际重画帧率 {fps:.0f}fps"
+              f"（{drawn} 帧 / {span * 1000:.0f}ms；页面只推 ~16fps，其余靠本地补帧）")
+        if fps < 40:
+            failures += 1
+        print(f"  {'[OK]' if best_dt > 0 else '[FAIL]'} 两次推送之间确实在本地外推位置 "
+              f"(frame_dt 最大 {round(best_dt * 1000)}ms)")
+        if best_dt <= 0:
+            failures += 1
+        print(f"  [OK] 补帧单帧绘制耗时 {second_overlay.get('draw_ms')}ms"
+              f"（60fps 的预算 16.7ms）")
+    else:
+        print(f"  [FAIL] 没估算出滚动速度（frame_items={overlay.get('frame_items')}）")
+        failures += 1
 
     # 「位置映射、样式不动」：位置按 覆盖层÷视口 映射，字号等样式保持站点原值
     raw = (overlay.get("raw_items") or [{}])[0]
@@ -817,6 +868,93 @@ def check_danmaku_mirror(seconds: float) -> int:
         print("  [OK] toggle_mirror 动作能关闭映射")
     else:
         print(f"  [FAIL] toggle_mirror 未生效: {info2.get('on')}")
+        failures += 1
+
+    # ---- 自绘模式：弹幕内容由子进程自己算，不再照抄页面 DOM 坐标 ----
+    # 真实链路上弹幕是子进程按 cid 拉回来的（bilibili_danmaku），这里不联网，
+    # 直接灌一段进引擎来验证「接线 + 渲染」；解析与引擎算法另有
+    # tests/danmaku_engine_check.py 覆盖。
+    print("\n  --- 自绘模式（自己拉数据自己算位置）---")
+    browser.set_mirror_danmaku(True)
+    time.sleep(1.0)
+    demo = [
+        {"t0": 0.0, "mode": 1, "size": 25, "color": 0xFFFFFF, "text": "自绘一号"},
+        {"t0": 0.2, "mode": 1, "size": 25, "color": 0xFFD400, "text": "自绘二号"},
+        {"t0": 0.4, "mode": 5, "size": 25, "color": 0x66CCFF, "text": "自绘顶部"},
+        {"t0": 30.0, "mode": 1, "size": 25, "color": 0xFFFFFF, "text": "还没到时间"},
+    ]
+    browser.debug_load_danmaku(demo)
+    browser.debug_set_playback(1.0, 1.0, False)
+    time.sleep(1.5)
+    auto = browser.mirror_debug(timeout=5.0) or {}
+    aov = auto.get("overlay") or {}
+    stats = aov.get("engine_stats") or {}
+    for ok, label in [
+        (auto.get("source") == "engine", f"数据源切到自绘（source={auto.get('source')}）"),
+        (aov.get("engine_enabled") is True, "覆盖层处于自绘模式"),
+        (int(stats.get("loaded") or 0) == len(demo), f"引擎载入 {stats.get('loaded')} 条"),
+        (aov.get("last_draw", [0, 0, 0, False])[2] == 3,
+         f"这一帧画 3 条（第 4 条还没到时间）-> {aov.get('last_draw')}"),
+    ]:
+        print(f"  {'[OK]' if ok else '[FAIL]'} {label}")
+        if not ok:
+            failures += 1
+    texts = sorted(it["t"] for it in (aov.get("frame_items") or []))
+    if texts:
+        print(f"  [OK] 帧内容是引擎算出来的：{texts}")
+    else:
+        print("  [FAIL] 自绘模式下帧内容为空")
+        failures += 1
+
+    # 位置随播放时刻前移：把时钟固定在两个不同时刻各读一次
+    # （用 paused=True 把时钟钉住，否则它会按 rate 自己往前走）
+    browser.debug_set_playback(1.0, 1.0, True)
+    time.sleep(1.2)
+    at_first = ((browser.mirror_debug(timeout=5.0) or {}).get("overlay") or {})
+    first_x = {it["t"]: it["x"] for it in (at_first.get("frame_items") or [])}
+    browser.debug_set_playback(3.0, 1.0, True)
+    time.sleep(1.2)
+    at_third = ((browser.mirror_debug(timeout=5.0) or {}).get("overlay") or {})
+    third_x = {it["t"]: it["x"] for it in (at_third.get("frame_items") or [])}
+    moved = [k for k in first_x if k in third_x and third_x[k] < first_x[k]]
+    if moved:
+        print(f"  [OK] 位置随播放时刻前移（{len(moved)} 条，"
+              f"t=1s 时 自绘一号 x={first_x.get('自绘一号')} -> t=3s 时 {third_x.get('自绘一号')}）")
+    else:
+        print(f"  [FAIL] 位置没有随时刻变化：{first_x} -> {third_x}")
+        failures += 1
+
+    # 暂停：再等一段时间，位置必须一点不动
+    time.sleep(1.2)
+    frozen = ((browser.mirror_debug(timeout=5.0) or {}).get("overlay") or {})
+    frozen_x = {it["t"]: it["x"] for it in (frozen.get("frame_items") or [])}
+    if (frozen.get("playback") or {}).get("paused") is True and frozen_x == third_x:
+        print("  [OK] 暂停后位置冻住，画面不再前进")
+    else:
+        print(f"  [FAIL] 暂停没生效: 状态={(frozen.get('playback') or {}).get('paused')} "
+              f"{third_x} -> {frozen_x}")
+        failures += 1
+
+    # 恢复播放：时钟按 rate 自己走，位置继续变化
+    browser.debug_set_playback(3.0, 1.0, False)
+    time.sleep(1.0)
+    playing = ((browser.mirror_debug(timeout=5.0) or {}).get("overlay") or {})
+    playing_x = {it["t"]: it["x"] for it in (playing.get("frame_items") or [])}
+    if playing_x.get("自绘一号") is not None and playing_x != third_x:
+        print(f"  [OK] 播放中时钟按倍速自走（坐标自行前进到 {playing_x.get('自绘一号')}）")
+    else:
+        print(f"  [FAIL] 播放中时钟没有推进: {third_x} -> {playing_x}")
+        failures += 1
+
+    # 拿不到弹幕时要能退回 DOM 模式（回退路径）
+    browser.debug_load_danmaku([])
+    time.sleep(1.2)
+    fallback = browser.mirror_debug(timeout=5.0) or {}
+    if fallback.get("source") == "dom" and (fallback.get("overlay") or {}).get("engine_enabled") is False:
+        print("  [OK] 弹幕为空时自动退回 DOM 映射模式（回退路径可用）")
+    else:
+        print(f"  [FAIL] 回退失败: source={fallback.get('source')} "
+              f"engine={ (fallback.get('overlay') or {}).get('engine_enabled') }")
         failures += 1
 
     # 「两个独立开关」走**悬浮窗工具条按钮**（ok 界面里已经没有这个开关了）：

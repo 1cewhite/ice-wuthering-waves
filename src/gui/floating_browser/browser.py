@@ -697,6 +697,15 @@ class FloatingBrowser:
         """测试/诊断用：读取覆盖层状态（窗口句柄、置顶、最后绘制内容等）。"""
         return self._query("inspect_mirror", timeout=timeout)
 
+    def debug_load_danmaku(self, items: list) -> None:
+        """测试/诊断用：跳过网络直接把弹幕灌进引擎（离线验证自绘渲染）。"""
+        self._send("debug_load_danmaku", list(items or []))
+
+    def debug_set_playback(self, seconds: float, rate: float = 1.0,
+                           paused: bool = False) -> None:
+        """测试/诊断用：直接设定播放时刻（不走页面上报）。"""
+        self._send("debug_set_playback", [float(seconds), float(rate), bool(paused)])
+
     def set_mirror(self, enabled: bool) -> bool:
         """总开关（工具条按钮 / 热键用）：同时开/关弹幕与字幕。
 

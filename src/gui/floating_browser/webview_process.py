@@ -50,6 +50,7 @@ import time
 from typing import Any
 
 from src.gui.floating_browser import log as fb_log
+from src.gui.floating_browser import bilibili_danmaku
 from src.gui.floating_browser.danmaku_overlay import MIRROR_JS, DanmakuOverlay
 
 try:  # Windows 专用；其它平台走降级分支
@@ -500,6 +501,18 @@ _state: dict[str, Any] = {
     "mirror_danmaku": False,
     "mirror_subtitle": False,
     "overlay": None,
+    # 弹幕数据来源：'engine' = 自己拉数据自己算位置（默认目标）；
+    # 'dom' = 抄页面元素坐标（拿不到数据时的回退路径）。
+    "danmaku_source": "dom",
+    "danmaku_cid": 0,            # 当前已经载入引擎的 cid
+    "danmaku_loading": False,    # 是否正在后台拉取
+    "danmaku_failed": set(),     # 拉取失败的 cid（不反复重试）
+    "danmaku_items": 0,          # 载入引擎的弹幕条数
+    "danmaku_debug": False,      # 离线调试模式：忽略页面上报的数据源与播放时钟
+    "media_t": 0.0,              # 页面上报的播放时刻（诊断用）
+    "media_paused": True,
+    "media_rate": 1.0,
+    "media_seeks": 0,
     # 弹幕覆盖层的锚点：游戏窗口。``game_hwnd_hint`` 是主进程推来的，
     # ``game_hwnd`` 是本进程解析（含超时缓存）后的结果。
     "game_hwnd": 0,
@@ -507,9 +520,74 @@ _state: dict[str, Any] = {
     "game_hwnd_ts": 0.0,
     "closing": False,
 }
+# 拉取弹幕的互斥量（避免同一个 cid 被并发拉两次）
+_danmaku_lock = threading.Lock()
 
 # 悬浮在窗口顶部的工具条高度（与注入的 HTML 保持一致）
 CONTROL_BAR_HEIGHT = 40
+
+# 弹幕横向速度跟踪：给覆盖层「本地补帧」用。
+#
+# 页面每 60ms 才推一次坐标，若直接照搬，滚动弹幕就是 16.7fps 一段一段地跳
+# （每段约 10px），看起来明显卡顿。这里用两次采样估算每条弹幕的横向速度
+# （px/s，页面坐标），覆盖层再按 60fps 在本地外推位置 —— 不用增加 IPC 频率。
+MOTION_MAX_AGE = 0.5          # 样本超过这么久没更新就丢弃（弹幕已滚出去）
+MOTION_MIN_DT = 0.02          # 间隔太短的差分噪声太大
+MOTION_MAX_VX = 4000.0        # px/s，超过就当作节点被复用/跳变，不采信
+MOTION_SMOOTH = 0.4           # 一阶低通系数（压掉取整抖动）
+MOTION_MIN_VX = 20.0          # 小于这个速度视为静止（固定弹幕）
+MOTION_EDGE_SLACK = 24        # 贴右边缘这么多像素内 = 正在进场，可直接用整体速度
+_motion: dict[str, tuple[float, float, float, str]] = {}
+_motion_lock = threading.Lock()
+
+
+def _attach_velocity(items: list, now: float) -> None:
+    """就地给每条弹幕补上横向速度 ``vx``（页面坐标系 px/s）。"""
+    if not items:
+        return
+    with _motion_lock:
+        fresh: dict[str, tuple[float, float, float, str]] = {}
+        global_vx = 0.0
+        for item in items:
+            key = str(item.get("i") or "") or f"{item.get('x')},{item.get('y')}"
+            text = str(item.get("t") or "")
+            x = float(item.get("x") or 0)
+            vx = 0.0
+            prev = _motion.get(key)
+            # 播放器会「池化复用」弹幕节点：同一个 id 换了文字就是另一条弹幕，
+            # 不能拿旧的速度（否则会算出一个巨大的跳变）。
+            if prev is not None and prev[3] == text:
+                prev_x, prev_ts, prev_vx, _ = prev
+                dt = now - prev_ts
+                if MOTION_MIN_DT <= dt <= MOTION_MAX_AGE:
+                    raw = (x - prev_x) / dt
+                    if abs(raw) <= MOTION_MAX_VX:
+                        vx = raw if abs(prev_vx) < 1e-6 else prev_vx + MOTION_SMOOTH * (raw - prev_vx)
+            if vx:
+                item["vx"] = round(vx, 1)
+            fresh[key] = (x, now, vx, text)
+        # 滚动弹幕速度基本一致：新进场的弹幕（贴着右边缘）可以直接套用整体速度，
+        # 免得第一条 60ms 因为还没有速度估计而「顿」一下。
+        speeds = [entry[2] for entry in fresh.values() if abs(entry[2]) >= MOTION_MIN_VX]
+        if speeds:
+            global_vx = sum(speeds) / len(speeds)
+        if global_vx:
+            width = float(_state.get("viewport_width") or 0)
+            for item in items:
+                if abs(float(item.get("vx") or 0)) >= MOTION_MIN_VX or not width:
+                    continue
+                right = float(item.get("x") or 0) + float(item.get("w") or 0)
+                if right >= width - MOTION_EDGE_SLACK:
+                    item["vx"] = round(global_vx, 1)
+        _motion.clear()
+        _motion.update(fresh)
+
+
+def _reset_motion() -> None:
+    """清空速度样本（停映射 / 换页时调用，避免用到过期数据）。"""
+    with _motion_lock:
+        _motion.clear()
+
 
 # 游戏窗口识别：与 config.py 的 'windows' 段保持一致
 # （hwnd_class = 'UnrealWindow'，exe = 'Client-Win64-Shipping.exe'）。
@@ -713,9 +791,11 @@ def _apply_mirror() -> None:
     window = _state.get("window")
     if not on:
         _state["mirror_on"] = False
+        _reset_motion()
         overlay = _state.get("overlay")
         if overlay is not None:
             overlay.set_content([], None)
+            overlay.set_engine_enabled(False)
             overlay.set_visible(False)
         if window is not None:
             _evaluate(window, "window.__okMirrorSet && window.__okMirrorSet(false);")
@@ -726,9 +806,15 @@ def _apply_mirror() -> None:
         return
     _state["mirror_on"] = True
     _sync_overlay_geometry()
+    # 这一段视频的弹幕如果已经拉好了，直接继续用自绘模式（引擎里还留着数据）
+    overlay.set_engine_enabled(
+        danmaku and _state.get("danmaku_source") == "engine"
+        and int(_state.get("danmaku_items") or 0) > 0
+    )
     overlay.set_visible(True)
     if window is not None:
         _evaluate(window, "window.__okMirrorSet && window.__okMirrorSet(true);")
+        _notify_danmaku_source(window)
         _sync_toolbar_state(window)
 
 
@@ -738,6 +824,132 @@ def _set_mirror(on: bool) -> None:
     _state["mirror_danmaku"] = on
     _state["mirror_subtitle"] = on
     _apply_mirror()
+
+
+# ---------------------------------------------------------------- 自绘模式
+#
+# 目标：**不抄页面的 DOM，自己拉弹幕数据自己算位置**。
+# 页面只负责上报「现在播到第几秒、哪个视频」（每 200ms 一次），
+# 弹幕由子进程按 cid 拉取（见 bilibili_danmaku），位置由引擎按播放时刻算出
+# （见 danmaku_engine）——于是 seek / 倍速天然正确，也不存在采样间隔导致的跳帧。
+#
+# 拉不到数据（番剧要登录、被风控、非视频页…）就自动退回「抄 DOM」的老路径。
+
+
+def _on_media(data: dict) -> None:
+    """页面每 200ms 上报一次播放进度：更新时钟，并在需要时触发弹幕拉取。"""
+    overlay = _state.get("overlay")
+    if overlay is None or not _state.get("mirror_on"):
+        return
+    # 离线调试模式：内容与时钟都由调试接口直接给，别被页面上报覆盖
+    if _state.get("danmaku_debug"):
+        return
+    window = _state.get("window")
+    # 后台线程不允许直接碰页面，数据源变化在这里（JS 桥线程）补一次通知
+    if _state.pop("pending_source_notify", False):
+        _notify_danmaku_source(window)
+
+    seconds = float(data.get("t") or 0.0)
+    rate = float(data.get("rate") or 1.0) or 1.0
+    paused = bool(data.get("paused"))
+    previous = float(_state.get("media_t") or 0.0)
+    if not _state.get("media_paused") and abs(seconds - previous) > 2.0:
+        _state["media_seeks"] = int(_state.get("media_seeks") or 0) + 1
+    _state["media_t"] = seconds
+    _state["media_paused"] = paused
+    _state["media_rate"] = rate
+    overlay.set_playback(seconds, rate, paused)
+
+    if not _state.get("mirror_danmaku"):
+        return
+    _ensure_danmaku(data)
+
+
+def _ensure_danmaku(data: dict) -> None:
+    """按需拉取当前视频的弹幕（放后台线程，别堵住消息循环）。"""
+    cid = int(data.get("cid") or 0)
+    bvid = str(data.get("bvid") or "").strip()
+    page = int(data.get("p") or 1)
+    if not cid and not bvid:
+        if _state.get("danmaku_source") != "dom":
+            _set_source("dom", "页面给不出视频标识")
+        return
+    if cid and cid == int(_state.get("danmaku_cid") or 0):
+        return
+    if cid and cid in _state.get("danmaku_failed", set()):
+        return
+    with _danmaku_lock:
+        if _state.get("danmaku_loading"):
+            return
+        _state["danmaku_loading"] = True
+    threading.Thread(target=_load_danmaku, args=(cid, bvid, page),
+                     name="DanmakuFetch", daemon=True).start()
+
+
+def _load_danmaku(cid: int, bvid: str, page: int) -> None:
+    """后台线程：拉整段弹幕 → 交给覆盖层的引擎 → 切到自绘模式。"""
+    try:
+        if not cid:
+            cid = bilibili_danmaku.resolve_cid(bvid, page)
+        if not cid:
+            _set_source("dom", f"拿不到 cid（bvid={bvid!r} p={page}）")
+            return
+        items = bilibili_danmaku.fetch(cid)
+        if not items:
+            _state.setdefault("danmaku_failed", set()).add(cid)
+            _set_source("dom", f"cid={cid} 拉不到弹幕")
+            return
+        overlay = _state.get("overlay")
+        if overlay is None:
+            return
+        overlay.load_danmaku(items)
+        _state["danmaku_cid"] = cid
+        _state["danmaku_items"] = len(items)
+        _set_source("engine", f"cid={cid} / {len(items)} 条")
+    except Exception as error:  # pragma: no cover - 兜底
+        fb_log.warning(f"弹幕拉取线程异常: {error}")
+        _set_source("dom", f"异常 {error!r}")
+    finally:
+        _state["danmaku_loading"] = False
+
+
+def _set_source(source: str, reason: str = "") -> None:
+    """切换「弹幕数据从哪来」：``engine`` = 自己算位置，``dom`` = 抄页面坐标。
+
+    可能在后台线程被调用，所以这里只改状态 + 动覆盖层（线程安全），
+    「通知页面停采弹幕 DOM」留给 JS 桥线程的 ``_on_media`` 去做。
+    """
+    source = "engine" if source == "engine" else "dom"
+    previous = _state.get("danmaku_source")
+    _state["danmaku_source"] = source
+    overlay = _state.get("overlay")
+    if overlay is not None:
+        overlay.set_engine_enabled(source == "engine" and bool(_state.get("mirror_danmaku")))
+    _state["pending_source_notify"] = True
+    if previous != source:
+        fb_log.info(f"弹幕数据源: {previous} -> {source}（{reason}）")
+
+
+def _notify_danmaku_source(window) -> None:
+    """告诉页面现在用哪种数据源（engine 模式下页面可以省掉读弹幕 DOM）。"""
+    if window is None:
+        return
+    mode = "engine" if _state.get("danmaku_source") == "engine" else "dom"
+    _evaluate(window, f"window.__okSetDanmakuSource && window.__okSetDanmakuSource('{mode}');")
+
+
+def _reset_danmaku() -> None:
+    """换页 / 换视频：丢掉上一段视频的弹幕，回到「等新数据」的状态。"""
+    overlay = _state.get("overlay")
+    if overlay is not None:
+        overlay.load_danmaku([])
+        overlay.set_engine_enabled(False)
+    _state["danmaku_cid"] = 0
+    _state["danmaku_items"] = 0
+    _state["danmaku_source"] = "dom"
+    _state["danmaku_failed"] = set()
+    _state["danmaku_debug"] = False      # 换页后回到正常（非调试）链路
+    _state["pending_source_notify"] = True
 
 
 def _set_click_through(enabled: bool) -> None:
@@ -1162,13 +1374,27 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
                     data = payload.get("data") or {}
                     overlay = _state.get("overlay")
                     if overlay is not None and _state.get("mirror_on"):
+                        _state["viewport_width"] = float(data.get("vw") or 0)
                         overlay.set_viewport(data.get("vw") or 0, data.get("vh") or 0)
                         style = _parse_mirror_style(data.get("style"))
                         if style:
                             overlay.set_style(style)
-                        danmaku = (data.get("dm") or []) if _state.get("mirror_danmaku") else []
                         subtitle = data.get("sub") if _state.get("mirror_subtitle") else None
-                        overlay.set_content(danmaku, subtitle)
+                        if _state.get("danmaku_source") == "engine":
+                            # 自绘模式：弹幕内容由引擎按播放时刻算，页面推来的坐标一律不用。
+                            # 字幕没有接口可拿（要登录），所以继续走页面采集。
+                            overlay.set_content([], subtitle)
+                        else:
+                            danmaku = (list(data.get("dm") or [])
+                                       if _state.get("mirror_danmaku") else [])
+                            # 估算横向速度：覆盖层据此在两次推送之间本地补帧（60fps 平滑滚动）
+                            if danmaku:
+                                _attach_velocity(danmaku, time.time())
+                            overlay.set_content(danmaku, subtitle)
+                    return True
+                if action == "media":
+                    # 页面每 200ms 上报一次播放进度（自绘模式的唯一输入）
+                    _on_media(payload.get("data") or {})
                     return True
                 if action in ("toggle_mirror", "toggle_mirror_danmaku", "toggle_mirror_subtitle"):
                     if action == "toggle_mirror":
@@ -1240,6 +1466,8 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
         window = window_holder.get("window")
         if window is not None:
             _install_scripts(window)
+            # 换页/换视频后先清掉上一段视频的弹幕，等新的上报到齐再切回自绘
+            _reset_danmaku()
             # 换页/跳转后把镜像状态恢复回去（新页面的脚本是刚注入的）
             _apply_mirror()
 
@@ -1423,6 +1651,16 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
                         "on": bool(_state.get("mirror_on")),
                         "danmaku": bool(_state.get("mirror_danmaku")),
                         "subtitle": bool(_state.get("mirror_subtitle")),
+                        # 弹幕数据来源：engine = 自己拉数据自己算位置；dom = 抄页面坐标
+                        "source": _state.get("danmaku_source"),
+                        "danmaku_cid": int(_state.get("danmaku_cid") or 0),
+                        "danmaku_items": int(_state.get("danmaku_items") or 0),
+                        "danmaku_loading": bool(_state.get("danmaku_loading")),
+                        "danmaku_failed": sorted(int(c) for c in _state.get("danmaku_failed") or []),
+                        "media": {"t": round(float(_state.get("media_t") or 0.0), 3),
+                                  "rate": float(_state.get("media_rate") or 1.0),
+                                  "paused": bool(_state.get("media_paused")),
+                                  "seeks": int(_state.get("media_seeks") or 0)},
                         "game_hwnd": game_hwnd,
                         "game_hint": int(_state.get("game_hwnd_hint") or 0),
                         "game_rect": _client_rect_on_screen(game_hwnd),
@@ -1433,6 +1671,30 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
                         "overlay": overlay.debug_info() if overlay is not None else None,
                     }
                     _send(status_queue, "inspect_result", (request_id, info))
+                elif command == "debug_load_danmaku":
+                    # 离线调试/测试用：跳过网络，直接往引擎里灌一段弹幕。
+                    # （回归测试靠它验证自绘渲染，不用依赖 B 站接口可用。）
+                    overlay = _state.get("overlay")
+                    if overlay is not None:
+                        items = argument if isinstance(argument, list) else []
+                        _state["danmaku_debug"] = True
+                        overlay.load_danmaku(items)
+                        _state["danmaku_items"] = len(items)
+                        _state["danmaku_source"] = "engine" if items else "dom"
+                        overlay.set_engine_enabled(
+                            bool(items) and bool(_state.get("mirror_danmaku")))
+                elif command == "debug_set_playback":
+                    # 离线调试/测试用：直接设定播放时刻（不走页面上报）
+                    overlay = _state.get("overlay")
+                    if overlay is not None:
+                        values = list(argument or [])
+                        seconds = float(values[0]) if values else 0.0
+                        rate = float(values[1]) if len(values) > 1 else 1.0
+                        paused = bool(values[2]) if len(values) > 2 else False
+                        overlay.set_playback(seconds, rate, paused)
+                        _state["media_t"] = seconds
+                        _state["media_rate"] = rate
+                        _state["media_paused"] = paused
                 elif command == "get_geometry":
                     request_id = argument
                     rect = _get_window_rect()
