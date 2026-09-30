@@ -30,6 +30,7 @@ from typing import Any, Callable, Optional
 from urllib.parse import quote
 
 from src.gui.floating_browser import log as fb_log
+from src.gui.floating_browser.i18n import page_texts
 
 
 # 子进程协议行前缀，需与 _launcher.PROTOCOL_PREFIX 保持一致
@@ -409,6 +410,10 @@ class FloatingBrowser:
                 "mirror_danmaku": bool(self._mirror_danmaku),
                 "mirror_subtitle": bool(self._mirror_subtitle),
                 "game_hwnd": int(self._game_hwnd or 0),
+                # 工具条 / 设置面板的文案（已按当前语言翻译好）。
+                # 页面脚本在 WebView2 子进程里，拿不到 ok 的 gettext，
+                # 所以由主进程翻译好随启动配置一起带过去。
+                "page_i18n": page_texts(),
                 # 日志总开关：子进程据此决定要不要往 stderr 写诊断信息
                 "verbose": fb_log.is_verbose(),
             }

@@ -27,6 +27,7 @@ from src.gui.floating_browser.browser import (  # noqa: E402
     normalize_url,
 )
 from src.gui.floating_browser.hotkeys import HotkeyManager, parse_hotkey  # noqa: E402
+from src.gui.floating_browser.i18n import page_texts  # noqa: E402
 
 TEST_HTML = """<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>Floating Browser Test</title>
@@ -1087,16 +1088,28 @@ def check_danmaku_mirror(seconds: float) -> int:
 
     dm_panel = probe_panel("__ok_dm")
     sub_panel = probe_panel("__ok_cc")
+    # 面板文案是 i18n 的：有 ok app 时是译文，没有时退回英文原文。
+    # 所以拿文案表来断言，别把测试写死在某种语言上。
+    expected_texts = page_texts()
+
+    def subtitle_label_count(labels: list) -> int:
+        wanted = {expected_texts["panel.subtitle.size"],
+                  expected_texts["panel.subtitle.position"],
+                  expected_texts["panel.subtitle.background"]}
+        return len([item for item in labels if item in wanted])
+
     for ok, label in [
-        (dm_panel.get("shown") is True and dm_panel.get("title") == "弹幕设置",
-         f"右键弹幕按钮弹出「弹幕设置」（{dm_panel.get('title')}）"),
+        (dm_panel.get("shown") is True
+         and dm_panel.get("title") == expected_texts["panel.danmaku.title"],
+         f"右键弹幕按钮弹出弹幕设置面板（{dm_panel.get('title')!r}）"),
         (dm_panel.get("chips") == 2, f"类型过滤有滚动/固定两项（{dm_panel.get('chips')}）"),
         (dm_panel.get("ranges") == 3, f"弹幕面板三个滑块（{dm_panel.get('ranges')}）"),
         (dm_panel.get("segs") == 5, f"弹幕速度五档（{dm_panel.get('segs')}）"),
-        (sub_panel.get("shown") is True and sub_panel.get("title") == "字幕设置",
-         f"右键字幕按钮切到「字幕设置」（{sub_panel.get('title')}）"),
+        (sub_panel.get("shown") is True
+         and sub_panel.get("title") == expected_texts["panel.subtitle.title"],
+         f"右键字幕按钮切到字幕设置面板（{sub_panel.get('title')!r}）"),
         (sub_panel.get("ranges") == 3, f"字幕面板三个滑块（{sub_panel.get('ranges')}）"),
-        (len([x for x in (sub_panel.get("labels") or []) if "字幕" in x]) == 3,
+        (subtitle_label_count(sub_panel.get("labels") or []) == 3,
          f"字幕面板三项：{sub_panel.get('labels')}"),
     ]:
         print(f"  {'[OK]' if ok else '[FAIL]'} {label}")

@@ -1038,8 +1038,8 @@ msgid "Merge Discarded Echoes"
 msgstr "Fusionar ecos descartados"
 
 msgid ""
-"Must have 1000 discarded Echo to Run, Merge discarded Echoes in full "
-"batches of 100."
+"Must have 1000 discarded Echo to Run, Merge discarded Echoes in full batches"
+" of 100."
 msgstr ""
 "Debe haber 1000 ecos descartados para ejecutarse. Fusiona ecos descartados "
 "en lotes completos de 100."
@@ -1057,7 +1057,9 @@ msgid "Check Discarded Echo"
 msgstr "Comprobar ecos descartados"
 
 msgid "After daily tasks, check for 1000 discarded Echoes and merge them."
-msgstr "Después de las tareas diarias, comprueba si hay 1000 ecos descartados y fusiónalos."
+msgstr ""
+"Después de las tareas diarias, comprueba si hay 1000 ecos descartados y "
+"fusiónalos."
 
 msgid "Teleport and Farm 4C Echo"
 msgstr "Teletransportarse y farmear eco de coste 4"
@@ -1068,20 +1070,34 @@ msgstr "Fusionar ecos si hay más de 1000 descartados"
 msgid "Additional Tasks to Run After Daily Task"
 msgstr "Tareas adicionales para ejecutar después de la tarea diaria"
 
-msgid "Select optional tasks. Nightmare Nest runs before stamina farming to help complete the daily task; the other tasks run afterward."
-msgstr "Selecciona tareas opcionales. Nido de pesadilla se ejecuta antes de gastar energía para ayudar a completar la tarea diaria; las demás se ejecutan después."
+msgid ""
+"Select optional tasks. Nightmare Nest runs before stamina farming to help "
+"complete the daily task; the other tasks run afterward."
+msgstr ""
+"Selecciona tareas opcionales. Nido de pesadilla se ejecuta antes de gastar "
+"energía para ayudar a completar la tarea diaria; las demás se ejecutan "
+"después."
 
-msgid "Teleport and Farm 4C Echo requires \"Teleport to Boss\" to be enabled in Farm Echo Task."
-msgstr "Teletransportarse y farmear eco de coste 4 requiere activar \"Teletransportarse al jefe\" en la tarea de farmeo de ecos."
+msgid ""
+"Teleport and Farm 4C Echo requires \"Teleport to Boss\" to be enabled in "
+"Farm Echo Task."
+msgstr ""
+"Teletransportarse y farmear eco de coste 4 requiere activar "
+"\"Teletransportarse al jefe\" en la tarea de farmeo de ecos."
 
-msgid "Auto Farm all Nightmare Nest requires at least one \"Which to Farm\" option."
-msgstr "Farmear automáticamente todos los nidos de pesadilla requiere seleccionar al menos una opción en \"Qué farmear\"."
+msgid ""
+"Auto Farm all Nightmare Nest requires at least one \"Which to Farm\" option."
+msgstr ""
+"Farmear automáticamente todos los nidos de pesadilla requiere seleccionar al"
+" menos una opción en \"Qué farmear\"."
 
 msgid "Daily Task Completed"
 msgstr "Tarea diaria completada"
 
 msgid "Daily task completed, start teleport to farm 4C echo"
-msgstr "Tarea diaria completada; iniciando teletransporte para farmear ecos de coste 4"
+msgstr ""
+"Tarea diaria completada; iniciando teletransporte para farmear ecos de coste"
+" 4"
 
 msgid "can't find dialog right button"
 msgstr "No se puede encontrar el botón derecho del diálogo"
@@ -1099,7 +1115,9 @@ msgid "🌸 Auto Pick"
 msgstr "🌸 Recolección automática"
 
 msgid "🎛️ 批量修改声骸主属性(仅支持简中游戏语言)"
-msgstr "🎛️ Modificar atributos principales de Ecos por lotes (solo chino simplificado)"
+msgstr ""
+"🎛️ Modificar atributos principales de Ecos por lotes (solo chino "
+"simplificado)"
 
 msgid "📅 Daily Task"
 msgstr "📅 Tarea diaria"
@@ -1108,7 +1126,9 @@ msgid "🩺 Diagnosis"
 msgstr "🩺 Diagnóstico"
 
 msgid "⬆️ 批量强化声骸(游戏与okww语言必须为简体/繁体中文)"
-msgstr "⬆️ Mejorar Ecos por lotes (el juego y okww deben usar chino simplificado/tradicional)"
+msgstr ""
+"⬆️ Mejorar Ecos por lotes (el juego y okww deben usar chino "
+"simplificado/tradicional)"
 
 msgid "🌀 Farm 4C Echo in Dungeon/World"
 msgstr "🌀 Farmear Eco 4C en mazmorra/mundo"
@@ -1150,13 +1170,21 @@ msgid "🌊 Tacet Suppression"
 msgstr "🌊 Supresión Tacet"
 
 msgid "点击B进入背包, 在过滤器中选择需要修改主属性的声骸, 并按照等级从0排序后开始."
-msgstr "Pulsa B para abrir la mochila, selecciona en el filtro los Ecos cuyo atributo principal quieras modificar y ordénalos por nivel desde 0 antes de comenzar."
+msgstr ""
+"Pulsa B para abrir la mochila, selecciona en el filtro los Ecos cuyo "
+"atributo principal quieras modificar y ordénalos por nivel desde 0 antes de "
+"comenzar."
 
 msgid "点击B进入背包, 在过滤器中选择需要强化的声骸, 并按照等级从0排序后开始."
-msgstr "Pulsa B para abrir la mochila, selecciona en el filtro los Ecos que quieras mejorar y ordénalos por nivel desde 0 antes de comenzar."
+msgstr ""
+"Pulsa B para abrir la mochila, selecciona en el filtro los Ecos que quieras "
+"mejorar y ordénalos por nivel desde 0 antes de comenzar."
 
 msgid "游戏与okww语言必须为简体/繁体中文,必须16:9分辨率,使用1600x900以上分辨率, 勾选需要的, 没勾的都会自动合成"
-msgstr "El juego y okww deben estar en chino simplificado/tradicional; se requiere una resolución 16:9 de al menos 1600x900. Marca lo que quieras conservar; lo no marcado se fusionará automáticamente."
+msgstr ""
+"El juego y okww deben estar en chino simplificado/tradicional; se requiere "
+"una resolución 16:9 de al menos 1600x900. Marca lo que quieras conservar; lo"
+" no marcado se fusionará automáticamente."
 
 msgid "Switch to Healer before and after Combat"
 msgstr "Cambiar al sanador antes y después del combate"
@@ -1313,3 +1341,350 @@ msgstr "Equipo eliminado."
 
 msgid "JingRan"
 msgstr "Jingran"
+
+msgid "Bilibili"
+msgstr "Bilibili"
+
+msgid "Video URL"
+msgstr "URL del vídeo"
+
+msgid "Video source"
+msgstr "Fuente de vídeo"
+
+msgid "Start floating browser"
+msgstr "Iniciar navegador flotante"
+
+msgid "Stop"
+msgstr "Detener"
+
+msgid "Show / Hide"
+msgstr "Mostrar / Ocultar"
+
+msgid "Hover opacity (click-through)"
+msgstr "Opacidad al pasar el ratón (modo clic a través)"
+
+msgid ""
+"In click-through mode the window drops to this opacity while the pointer "
+"hovers over it, so you can see what is underneath."
+msgstr ""
+"En modo clic a través, la ventana baja a esta opacidad mientras el puntero "
+"está encima, para que puedas ver lo que hay debajo."
+
+msgid "Output floating browser logs"
+msgstr "Mostrar registros del navegador flotante"
+
+msgid ""
+"Master switch for all floating browser output in the console and log file"
+msgstr ""
+"Interruptor principal de toda la salida del navegador flotante en la consola"
+" y el archivo de registro"
+
+msgid ""
+"(including subprocess diagnostics and launcher messages). Off by default."
+msgstr ""
+"(incluye diagnósticos del subproceso y mensajes del iniciador). Desactivado "
+"por defecto."
+
+msgid "On-screen notices (pop-ups, status bar) are not affected."
+msgstr ""
+"Los avisos en pantalla (ventanas emergentes, barra de estado) no se ven "
+"afectados."
+
+msgid ""
+"Window size, opacity, click-through, always-on-top, and the danmaku/subtitle"
+" mirroring switches"
+msgstr ""
+"El tamaño, la opacidad, el clic a través, siempre visible y los "
+"interruptores de espejo de danmaku/subtítulos"
+
+msgid ""
+"are all on the toolbar at the top of the floating window: drag the left area"
+" to move it,"
+msgstr ""
+"están en la barra superior de la ventana flotante: arrastra la zona "
+"izquierda para moverla,"
+
+msgid "drag the right/bottom edge to resize."
+msgstr "arrastra el borde derecho/inferior para redimensionarla."
+
+msgid "Startup & window"
+msgstr "Inicio y ventana"
+
+msgid "Format example: ctrl+shift+space; leave empty or use none to disable"
+msgstr "Ejemplo: ctrl+shift+space; déjalo vacío o pon none para desactivarlo"
+
+msgid ""
+"After changing hotkeys, click Save settings and restart the floating "
+"browser."
+msgstr ""
+"Tras cambiar las teclas, pulsa Guardar ajustes y reinicia el navegador "
+"flotante."
+
+msgid "The default step for forward/backward is 5 seconds."
+msgstr "El paso predeterminado de avance/retroceso es de 5 segundos."
+
+msgid "Save settings"
+msgstr "Guardar ajustes"
+
+msgid "Reload hotkeys now"
+msgstr "Recargar teclas ahora"
+
+msgid "Global hotkeys"
+msgstr "Teclas globales"
+
+msgid "Not running"
+msgstr "No iniciado"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Floating browser"
+msgstr "Navegador flotante"
+
+msgid "Settings saved"
+msgstr "Ajustes guardados"
+
+msgid "Failed to save the floating browser config: {error}"
+msgstr "No se pudo guardar la configuración del navegador flotante: {error}"
+
+msgid "Failed to save the floating browser config: "
+msgstr "No se pudo guardar la configuración del navegador flotante: "
+
+msgid "Save failed"
+msgstr "Error al guardar"
+
+msgid "Failed to read config {name}: {error}"
+msgstr "No se pudo leer la configuración {name}: {error}"
+
+msgid "Failed to save the window geometry: {error}"
+msgstr "No se pudo guardar la geometría de la ventana: {error}"
+
+msgid "Save first, then restart the floating browser to rebind the hotkeys."
+msgstr ""
+"Guarda primero y reinicia el navegador flotante para reasignar las teclas."
+
+msgid "The floating browser is not running; hotkeys apply on start"
+msgstr ""
+"El navegador flotante no está en ejecución; las teclas se aplican al iniciar"
+
+msgid "Notice"
+msgstr "Aviso"
+
+msgid "These hotkeys are taken by other programs: "
+msgstr "Estas teclas están ocupadas por otros programas: "
+
+msgid ", please pick different combinations in Global hotkeys."
+msgstr ". Elige otras combinaciones en Teclas globales."
+
+msgid "Some hotkeys unavailable"
+msgstr "Algunas teclas no están disponibles"
+
+msgid "Floating browser started"
+msgstr "Navegador flotante iniciado"
+
+msgid ""
+"WebView2 runtime not found; opening the video page in the system browser "
+"instead."
+msgstr ""
+"No se encontró WebView2; se abre la página de vídeo en el navegador del "
+"sistema."
+
+msgid "Install WebView2 to get the floating window and hotkey control."
+msgstr ""
+"Instala WebView2 para tener la ventana flotante y el control por teclas."
+
+msgid "Running in degraded mode"
+msgstr "Ejecutando en modo degradado"
+
+msgid "Floating browser closed"
+msgstr "Navegador flotante cerrado"
+
+msgid "On"
+msgstr "Activado"
+
+msgid "Off"
+msgstr "Desactivado"
+
+msgid "Click-through"
+msgstr "Clic a través"
+
+msgid ", press the toggle click-through hotkey to turn it off."
+msgstr ", pulsa la tecla de alternar clic a través para desactivarlo."
+
+msgid "Started, no video detected"
+msgstr "Iniciado, no se detectó vídeo"
+
+msgid ""
+"Open a video page in the floating window and start playback; hotkeys work "
+"from then on."
+msgstr ""
+"Abre una página de vídeo en la ventana flotante e inicia la reproducción; "
+"las teclas funcionarán a partir de entonces."
+
+msgid "Paused"
+msgstr "En pausa"
+
+msgid "Playing"
+msgstr "Reproduciendo"
+
+msgid "Speed"
+msgstr "Velocidad"
+
+msgid "Volume"
+msgstr "Volumen"
+
+msgid " (muted)"
+msgstr " (silenciado)"
+
+msgid "Window"
+msgstr "Ventana"
+
+msgid "Opacity"
+msgstr "Opacidad"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Play / Pause"
+msgstr "Reproducir / Pausar"
+
+msgid "Toggle video playback"
+msgstr "Alternar la reproducción del vídeo"
+
+msgid "Skip forward by the configured seconds"
+msgstr "Avanzar los segundos configurados"
+
+msgid "Skip backward by the configured seconds"
+msgstr "Retroceder los segundos configurados"
+
+msgid "Hold for 3x speed"
+msgstr "Mantener para 3x"
+
+msgid "Play at 3x while held, restore the original speed on release"
+msgstr "Reproduce a 3x mientras se mantiene y restaura la velocidad al soltar"
+
+msgid "Volume +10%"
+msgstr "Volumen +10%"
+
+msgid "Raise the volume by 10%"
+msgstr "Subir el volumen un 10%"
+
+msgid "Volume -10%"
+msgstr "Volumen -10%"
+
+msgid "Lower the volume by 10%"
+msgstr "Bajar el volumen un 10%"
+
+msgid "Toggle click-through"
+msgstr "Alternar clic a través"
+
+msgid "Turn mouse click-through on or off"
+msgstr "Activar o desactivar el clic a través"
+
+msgid "Toggle overlay mirroring"
+msgstr "Alternar el espejo de superposición"
+
+msgid "Mirror Bilibili danmaku/subtitles onto the game; press again to stop"
+msgstr ""
+"Refleja el danmaku/subtítulos de Bilibili sobre el juego; pulsa de nuevo "
+"para parar"
+
+msgid "Not set"
+msgstr "Sin configurar"
+
+msgid "Drag here to move the window"
+msgstr "Arrastra aquí para mover la ventana"
+
+msgid "Window opacity"
+msgstr "Opacidad de la ventana"
+
+msgid "Click"
+msgstr "Clic"
+
+msgid "Click-through: clicks pass to the window below"
+msgstr "Clic a través: los clics pasan a la ventana inferior"
+
+msgid ""
+"Mirror danmaku onto the game (click to toggle, right-click for settings)"
+msgstr ""
+"Refleja el danmaku sobre el juego (clic para activar, clic derecho para "
+"ajustes)"
+
+msgid ""
+"Mirror subtitles onto the game (click to toggle, right-click for settings; "
+"enable CC in the player first)"
+msgstr ""
+"Refleja los subtítulos sobre el juego (clic para activar, clic derecho para "
+"ajustes; activa CC antes)"
+
+msgid "Toggle always-on-top"
+msgstr "Alternar siempre visible"
+
+msgid "Hide the floating window (show it again from the ok window)"
+msgstr "Ocultar la ventana flotante (vuelve a mostrarla desde la ventana ok)"
+
+msgid "Close the floating browser"
+msgstr "Cerrar el navegador flotante"
+
+msgid "Danmaku settings"
+msgstr "Ajustes de danmaku"
+
+msgid "Subtitle settings"
+msgstr "Ajustes de subtítulos"
+
+msgid "Filter by type (checked = hidden)"
+msgstr "Filtrar por tipo (marcado = oculto)"
+
+msgid "Scrolling"
+msgstr "Desplazamiento"
+
+msgid "Fixed"
+msgstr "Fijo"
+
+msgid "Display area"
+msgstr "Área de visualización"
+
+msgid "Font size"
+msgstr "Tamaño de fuente"
+
+msgid "Very slow"
+msgstr "Muy lenta"
+
+msgid "Slow"
+msgstr "Lenta"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "Fast"
+msgstr "Rápida"
+
+msgid "Very fast"
+msgstr "Muy rápida"
+
+msgid "Options and steps follow the Bilibili player's danmaku settings."
+msgstr ""
+"Las opciones y los niveles siguen los ajustes de danmaku del reproductor de "
+"Bilibili."
+
+msgid "Subtitle size"
+msgstr "Tamaño del subtítulo"
+
+msgid "Subtitle position"
+msgstr "Posición del subtítulo"
+
+msgid "Subtitle background opacity"
+msgstr "Opacidad del fondo del subtítulo"
+
+msgid "Larger value moves it lower (0 = top, 100 = bottom)."
+msgstr "Un valor mayor lo baja más (0 = arriba, 100 = abajo)."
+
+msgid ""
+"Subtitles can only be read from the page (the API needs login), so turn on "
+"CC in the player first."
+msgstr ""
+"Los subtítulos solo se pueden leer de la página (la API requiere iniciar "
+"sesión), así que activa CC primero."
+
+msgid "Playback speed"
+msgstr "Velocidad de reproducción"

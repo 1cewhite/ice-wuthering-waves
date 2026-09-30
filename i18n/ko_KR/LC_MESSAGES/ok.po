@@ -21,9 +21,7 @@ msgstr "단축키 오류! 단축키 설정이 올바른지 확인해주세요!"
 msgid "Can not switch to levitator please ensure you have equipped echos!"
 msgstr "레비테이터로 전환할 수 없습니다. 에코를 장착했는지 확인하세요!"
 
-msgid ""
-"(1-6) Important, Choose which level to farm, lower levels might not produce "
-"a echo"
+msgid "(1-6) Important, Choose which level to farm, lower levels might not produce a echo"
 msgstr "(1-6) 중요: 파밍할 레벨을 선택하세요. 낮은 레벨에서는 에코가 나오지 않을 수 있습니다."
 
 msgid "Boss1"
@@ -68,9 +66,7 @@ msgstr "공명 해방 키 (기본 r)"
 msgid "Auto Target"
 msgstr "자동 타겟팅"
 
-msgid ""
-"Turn off to enable auto combat only when manually target enemy using middle "
-"click"
+msgid "Turn off to enable auto combat only when manually target enemy using middle click"
 msgstr "끄면 마우스 휠 클릭으로 적을 수동 지정했을 때에만 자동 전투가 작동합니다"
 
 msgid "Repeat Farm Count"
@@ -199,12 +195,10 @@ msgstr "월정액 카드 설정"
 msgid "Monthly Card Time"
 msgstr "월정액 시간"
 
-msgid ""
-"Your computer's local time when the monthly card will popup, hour in (1-24)"
+msgid "Your computer's local time when the monthly card will popup, hour in (1-24)"
 msgstr "월정액 팝업이 표시될 현지 시간 (1~24시)"
 
-msgid ""
-"must be in game world and in teams, please check you game resolution is 16:9"
+msgid "must be in game world and in teams, please check you game resolution is 16:9"
 msgstr "게임 월드의 팀 상태여야 합니다. 게임 해상도가 16:9인지 확인하세요"
 
 msgid "Capture Frame Count"
@@ -249,9 +243,7 @@ msgstr "아니요"
 msgid "True"
 msgstr "예"
 
-msgid ""
-"Can't load game hotkey, please equip echos for all characters and use A-Z as"
-" hotkeys for skills, detected key:{}"
+msgid "Can't load game hotkey, please equip echos for all characters and use A-Z as hotkeys for skills, detected key:{}"
 msgstr "게임 단축키를 불러올 수 없습니다. 모든 캐릭터에 에코를 장착하고 스킬 단축키를 A-Z로 설정하세요. 감지된 키: {}"
 
 msgid "Tool Key"
@@ -323,9 +315,7 @@ msgstr "로렐라이"
 msgid "click f2 to open the book"
 msgstr "F2를 눌러 도감을 여세요"
 
-msgid ""
-"Check configs to keep, click start in game world, must be in a 16:9 screen "
-"ratio"
+msgid "Check configs to keep, click start in game world, must be in a 16:9 screen ratio"
 msgstr "유지할 설정을 확인한 뒤 게임 월드에서 시작을 클릭하세요. 화면 비율은 16:9여야 합니다"
 
 msgid "Boss"
@@ -448,17 +438,10 @@ msgstr "자동 에코 데이터 합성"
 msgid "Data Merge Completed!"
 msgstr "데이터 합성 완료!"
 
-msgid ""
-"Auto combat error: Make sure you're equipping echos and turn off effect that"
-" changes the game color, (Game Gammar/Nvidia AMD Game Filter), turn off "
-"Motion Blur in game video options"
-msgstr ""
-"자동 전투 오류: 에코를 장착하고 게임 색상을 바꾸는 효과(게임 감마/NVIDIA/AMD 게임 필터)를 끄고, 비디오 옵션에서 모션 "
-"블러를 꺼주세요."
+msgid "Auto combat error: Make sure you're equipping echos and turn off effect that changes the game color, (Game Gammar/Nvidia AMD Game Filter), turn off Motion Blur in game video options"
+msgstr "자동 전투 오류: 에코를 장착하고 게임 색상을 바꾸는 효과(게임 감마/NVIDIA/AMD 게임 필터)를 끄고, 비디오 옵션에서 모션 블러를 꺼주세요."
 
-msgid ""
-"Auto combat error: Make sure to turn off effect that changes the game color,"
-" (Game Gammar/Nvidia AMD Game Filter/HDR)"
+msgid "Auto combat error: Make sure to turn off effect that changes the game color, (Game Gammar/Nvidia AMD Game Filter/HDR)"
 msgstr "자동 전투 오류: 게임 색상을 바꾸는 효과(게임 감마/NVIDIA/AMD 게임 필터/HDR)를 꺼주세요."
 
 msgid "Auto Login"
@@ -488,9 +471,7 @@ msgstr "일일 임무"
 msgid "Dreamless"
 msgstr "무망자"
 
-msgid ""
-"Farms the selected Tacet Suppression, until no stamina. Must be able to "
-"teleport (F2)."
+msgid "Farms the selected Tacet Suppression, until no stamina. Must be able to teleport (F2)."
 msgstr "선택한 무음구역을 스태미나가 소진될 때까지 파밍합니다. 텔레포트(F2)가 가능해야 합니다."
 
 msgid "Login, claim monthly card, farm echo, and claim daily reward"
@@ -538,9 +519,7 @@ msgstr "전투 후 자동 에코 줍기"
 msgid "Farm Map with Star Path"
 msgstr "별 경로로 맵 파밍"
 
-msgid ""
-"Farm world map with a marked path of stars (diamond as the starting point), "
-"start in the map screen"
+msgid "Farm world map with a marked path of stars (diamond as the starting point), start in the map screen"
 msgstr "별로 표시한 경로를 따라 월드 맵을 파밍합니다. 시작점은 다이아몬드이며, 지도 화면에서 시작하세요."
 
 msgid "Stars"
@@ -564,8 +543,7 @@ msgstr "전투 대기 시간 (초)"
 msgid "Simulation Challenge"
 msgstr "시뮬레이션 영역"
 
-msgid ""
-"Farms the selected Simulation Challenge. Must be able to teleport (F2)."
+msgid "Farms the selected Simulation Challenge. Must be able to teleport (F2)."
 msgstr "선택한 시뮬레이션 영역을 파밍합니다. 텔레포트(F2)가 가능해야 합니다."
 
 msgid "Material Selection"
@@ -598,8 +576,7 @@ msgstr "F2 목록에서 몇 번째 응소의 영역인지."
 msgid "not enough stamina"
 msgstr "스태미나 부족"
 
-msgid ""
-"Click skill failed, check if the keybinding is correct in ok-ww settings!"
+msgid "Click skill failed, check if the keybinding is correct in ok-ww settings!"
 msgstr "스킬 사용 실패, ok-ww 설정에서 키 바인딩이 올바른지 확인하세요!"
 
 msgid "Change Time to Night"
@@ -761,12 +738,8 @@ msgstr "선택한 계정 확인됨: {account}"
 msgid "Account display does not match, retrying ({attempt}/{max_retries})"
 msgstr "표시된 계정이 일치하지 않아 재시도 중 ({attempt}/{max_retries})"
 
-msgid ""
-"Account selection failed after {max_retries} retries; {account} is still not"
-" displayed. Continuing login attempt"
-msgstr ""
-"계정 선택이 {max_retries}회 재시도 후 실패했습니다. {account}이(가) 아직 표시되지 않습니다. 로그인을 계속 "
-"시도합니다"
+msgid "Account selection failed after {max_retries} retries; {account} is still not displayed. Continuing login attempt"
+msgstr "계정 선택이 {max_retries}회 재시도 후 실패했습니다. {account}이(가) 아직 표시되지 않습니다. 로그인을 계속 시도합니다"
 
 msgid "Failed to switch account"
 msgstr "계정 전환 실패"
@@ -889,14 +862,10 @@ msgstr "사용자 지정 코드 초기화"
 msgid "Reset this character to built in code and remove the custom code?"
 msgstr "이 캐릭터를 기본 제공 코드로 초기화하고 사용자 지정 코드를 제거하시겠습니까?"
 
-msgid ""
-"Custom code matches built in code. Removed custom code and switched to built"
-" in."
+msgid "Custom code matches built in code. Removed custom code and switched to built in."
 msgstr "사용자 지정 코드가 기본 제공 코드와 같습니다. 사용자 지정 코드를 제거하고 기본 제공으로 전환했습니다."
 
-msgid ""
-"Custom code matches built in code. Removed custom code, switched to built "
-"in, and reloaded loaded characters."
+msgid "Custom code matches built in code. Removed custom code, switched to built in, and reloaded loaded characters."
 msgstr "사용자 지정 코드가 기본 제공 코드와 같습니다. 제거하고 기본 제공으로 전환했으며, 로드된 캐릭터를 다시 불러왔습니다."
 
 msgid "Custom code reset to built in code."
@@ -914,18 +883,13 @@ msgstr "구현하고 싶은 내용:"
 msgid "Please modify the full {class_name} character automation code above."
 msgstr "위의 {class_name} 캐릭터 자동화 코드 전체를 수정해 주세요."
 
-msgid ""
-"Return only the complete modified Python code for the whole file, not a "
-"patch and not an explanation."
+msgid "Return only the complete modified Python code for the whole file, not a patch and not an explanation."
 msgstr "패치나 설명이 아닌, 파일 전체의 완전히 수정된 Python 코드만 반환해 주세요."
 
-msgid ""
-"Keep the class name as {class_name}. Preserve imports that are still needed."
+msgid "Keep the class name as {class_name}. Preserve imports that are still needed."
 msgstr "클래스 이름은 {class_name}로 유지하고, 아직 필요한 import는 보존해 주세요."
 
-msgid ""
-"Use this BaseChar reference while reasoning about helper methods, task APIs,"
-" state, switching, cooldowns, and combat flow:"
+msgid "Use this BaseChar reference while reasoning about helper methods, task APIs, state, switching, cooldowns, and combat flow:"
 msgstr "헬퍼 메서드, 태스크 API, 상태, 교체, 재사용 대기시간, 전투 흐름을 판단할 때 이 BaseChar 참고를 사용하세요:"
 
 msgid "Rover: Spectro"
@@ -1096,9 +1060,7 @@ msgstr "작업이 중지될 때까지 정원 동작을 감지하고 클릭합니
 msgid "Check Weekly Garden"
 msgstr "주간 정원 확인"
 
-msgid ""
-"After claiming daily rewards, check weekly Garden progress and run Garden "
-"Task if 6000 points has not been reached."
+msgid "After claiming daily rewards, check weekly Garden progress and run Garden Task if 6000 points has not been reached."
 msgstr "일일 보상을 수령한 뒤 주간 정원 진행도를 확인하고, 6000점에 도달하지 않았으면 정원 임무를 실행합니다."
 
 msgid "Guidebook Key"
@@ -1113,9 +1075,7 @@ msgstr "양양·현령"
 msgid "Merge Discarded Echoes"
 msgstr "폐기된 에코 합성"
 
-msgid ""
-"Must have 1000 discarded Echo to Run, Merge discarded Echoes in full "
-"batches of 100."
+msgid "Must have 1000 discarded Echo to Run, Merge discarded Echoes in full batches of 100."
 msgstr "실행하려면 폐기된 에코가 1000개 있어야 합니다. 폐기된 에코를 100개 단위로 합성합니다."
 
 msgid "Bag Key"
@@ -1387,3 +1347,300 @@ msgstr "팀을 삭제했습니다."
 
 msgid "JingRan"
 msgstr "경연"
+
+msgid "Bilibili"
+msgstr "빌리빌리"
+
+msgid "Video URL"
+msgstr "동영상 URL"
+
+msgid "Video source"
+msgstr "재생 소스"
+
+msgid "Start floating browser"
+msgstr "플로팅 브라우저 시작"
+
+msgid "Stop"
+msgstr "중지"
+
+msgid "Show / Hide"
+msgstr "표시 / 숨기기"
+
+msgid "Hover opacity (click-through)"
+msgstr "관통 시 호버 불투명도"
+
+msgid "In click-through mode the window drops to this opacity while the pointer hovers over it, so you can see what is underneath."
+msgstr "관통 모드에서 마우스가 창 위에 있는 동안 이 불투명도로 낮아져 아래 내용을 볼 수 있습니다."
+
+msgid "Output floating browser logs"
+msgstr "플로팅 브라우저 로그 출력"
+
+msgid "Master switch for all floating browser output in the console and log file"
+msgstr "콘솔 및 로그 파일에 대한 플로팅 브라우저 전체 출력을 제어하는 마스터 스위치"
+
+msgid "(including subprocess diagnostics and launcher messages). Off by default."
+msgstr "(하위 프로세스 진단 및 런처 메시지 포함). 기본값은 꺼짐."
+
+msgid "On-screen notices (pop-ups, status bar) are not affected."
+msgstr "화면 알림(팝업, 상태 표시줄)에는 영향을 주지 않습니다."
+
+msgid "Window size, opacity, click-through, always-on-top, and the danmaku/subtitle mirroring switches"
+msgstr "창 크기, 불투명도, 관통, 항상 위, 그리고 '탄막' '자막' 미러 스위치는"
+
+msgid "are all on the toolbar at the top of the floating window: drag the left area to move it,"
+msgstr "플로팅 창 상단 도구 모음에서 직접 조작합니다. 왼쪽 영역을 끌어 이동하고,"
+
+msgid "drag the right/bottom edge to resize."
+msgstr "오른쪽 / 아래쪽 가장자리를 끌어 크기를 조절합니다."
+
+msgid "Startup & window"
+msgstr "시작 및 창 조작"
+
+msgid "Format example: ctrl+shift+space; leave empty or use none to disable"
+msgstr "형식 예: ctrl+shift+space, 비워 두거나 none 이면 사용하지 않음"
+
+msgid "After changing hotkeys, click Save settings and restart the floating browser."
+msgstr "단축키를 바꾼 뒤 '설정 저장'을 누르고 플로팅 브라우저를 다시 시작해야 적용됩니다."
+
+msgid "The default step for forward/backward is 5 seconds."
+msgstr "앞으로 / 뒤로의 기본 이동 시간은 5초입니다."
+
+msgid "Save settings"
+msgstr "설정 저장"
+
+msgid "Reload hotkeys now"
+msgstr "단축키 즉시 다시 읽기"
+
+msgid "Global hotkeys"
+msgstr "전역 단축키"
+
+msgid "Not running"
+msgstr "실행 중 아님"
+
+msgid "Status"
+msgstr "실행 상태"
+
+msgid "Floating browser"
+msgstr "플로팅 브라우저"
+
+msgid "Settings saved"
+msgstr "설정이 저장되었습니다"
+
+msgid "Failed to save the floating browser config: {error}"
+msgstr "플로팅 브라우저 설정 저장 실패: {error}"
+
+msgid "Failed to save the floating browser config: "
+msgstr "플로팅 브라우저 설정 저장 실패: "
+
+msgid "Save failed"
+msgstr "저장 실패"
+
+msgid "Failed to read config {name}: {error}"
+msgstr "설정 {name} 읽기 실패: {error}"
+
+msgid "Failed to save the window geometry: {error}"
+msgstr "창 위치 저장 실패: {error}"
+
+msgid "Save first, then restart the floating browser to rebind the hotkeys."
+msgstr "먼저 저장한 뒤 플로팅 브라우저를 다시 시작해 단축키를 다시 등록하세요."
+
+msgid "The floating browser is not running; hotkeys apply on start"
+msgstr "플로팅 브라우저가 실행 중이 아닙니다. 단축키는 시작 시 적용됩니다"
+
+msgid "Notice"
+msgstr "알림"
+
+msgid "These hotkeys are taken by other programs: "
+msgstr "다음 단축키는 다른 프로그램이 사용 중입니다: "
+
+msgid ", please pick different combinations in Global hotkeys."
+msgstr ". '전역 단축키'에서 다른 조합으로 바꿔 주세요."
+
+msgid "Some hotkeys unavailable"
+msgstr "일부 단축키를 사용할 수 없음"
+
+msgid "Floating browser started"
+msgstr "플로팅 브라우저가 시작되었습니다"
+
+msgid "WebView2 runtime not found; opening the video page in the system browser instead."
+msgstr "WebView2 런타임을 찾을 수 없어 시스템 브라우저로 동영상 페이지를 엽니다."
+
+msgid "Install WebView2 to get the floating window and hotkey control."
+msgstr "WebView2를 설치하면 플로팅 창과 단축키 제어를 사용할 수 있습니다."
+
+msgid "Running in degraded mode"
+msgstr "제한 모드로 실행 중"
+
+msgid "Floating browser closed"
+msgstr "플로팅 브라우저가 닫혔습니다"
+
+msgid "On"
+msgstr "켜짐"
+
+msgid "Off"
+msgstr "꺼짐"
+
+msgid "Click-through"
+msgstr "마우스 관통"
+
+msgid ", press the toggle click-through hotkey to turn it off."
+msgstr ", '관통 전환' 단축키로 끌 수 있습니다."
+
+msgid "Started, no video detected"
+msgstr "시작됨, 동영상을 찾을 수 없음"
+
+msgid "Open a video page in the floating window and start playback; hotkeys work from then on."
+msgstr "플로팅 창에서 동영상 페이지를 열고 재생하면 단축키를 사용할 수 있습니다."
+
+msgid "Paused"
+msgstr "일시정지됨"
+
+msgid "Playing"
+msgstr "재생 중"
+
+msgid "Speed"
+msgstr "탄막 속도"
+
+msgid "Volume"
+msgstr "볼륨"
+
+msgid " (muted)"
+msgstr "(음소거)"
+
+msgid "Window"
+msgstr "창"
+
+msgid "Opacity"
+msgstr "불투명도"
+
+msgid "Title"
+msgstr "제목"
+
+msgid "Play / Pause"
+msgstr "재생 / 일시정지"
+
+msgid "Toggle video playback"
+msgstr "동영상 재생 상태 전환"
+
+msgid "Skip forward by the configured seconds"
+msgstr "설정한 초만큼 앞으로 이동"
+
+msgid "Skip backward by the configured seconds"
+msgstr "설정한 초만큼 뒤로 이동"
+
+msgid "Hold for 3x speed"
+msgstr "누르는 동안 3배속"
+
+msgid "Play at 3x while held, restore the original speed on release"
+msgstr "누르는 동안 3배속으로 재생하고 떼면 원래 속도로 돌아갑니다"
+
+msgid "Volume +10%"
+msgstr "볼륨 +10%"
+
+msgid "Raise the volume by 10%"
+msgstr "볼륨을 10% 높입니다"
+
+msgid "Volume -10%"
+msgstr "볼륨 -10%"
+
+msgid "Lower the volume by 10%"
+msgstr "볼륨을 10% 낮춥니다"
+
+msgid "Toggle click-through"
+msgstr "관통 전환"
+
+msgid "Turn mouse click-through on or off"
+msgstr "마우스 관통 켜기 / 끄기"
+
+msgid "Toggle overlay mirroring"
+msgstr "미러 표시 전환"
+
+msgid "Mirror Bilibili danmaku/subtitles onto the game; press again to stop"
+msgstr "Bilibili 탄막 / 자막을 게임 화면 최상단에 표시합니다. 다시 누르면 중지"
+
+msgid "Not set"
+msgstr "설정 안 됨"
+
+msgid "Drag here to move the window"
+msgstr "여기를 끌어 창 이동"
+
+msgid "Window opacity"
+msgstr "창 불투명도"
+
+msgid "Click"
+msgstr "관통"
+
+msgid "Click-through: clicks pass to the window below"
+msgstr "마우스 관통: 켜면 클릭이 아래 창으로 전달됩니다"
+
+msgid "Mirror danmaku onto the game (click to toggle, right-click for settings)"
+msgstr "탄막을 게임 화면 최상단에 표시 (클릭 전환, 우클릭 설정)"
+
+msgid "Mirror subtitles onto the game (click to toggle, right-click for settings; enable CC in the player first)"
+msgstr "자막을 게임 화면 최상단에 표시 (클릭 전환, 우클릭 설정. 먼저 플레이어에서 CC를 켜세요)"
+
+msgid "Toggle always-on-top"
+msgstr "항상 위 전환"
+
+msgid "Hide the floating window (show it again from the ok window)"
+msgstr "플로팅 창 숨기기 (ok 화면에서 다시 표시)"
+
+msgid "Close the floating browser"
+msgstr "플로팅 브라우저 닫기"
+
+msgid "Danmaku settings"
+msgstr "탄막 설정"
+
+msgid "Subtitle settings"
+msgstr "자막 설정"
+
+msgid "Filter by type (checked = hidden)"
+msgstr "종류별 필터 (체크 = 숨김)"
+
+msgid "Scrolling"
+msgstr "스크롤"
+
+msgid "Fixed"
+msgstr "고정"
+
+msgid "Display area"
+msgstr "표시 영역"
+
+msgid "Font size"
+msgstr "탄막 글자 크기"
+
+msgid "Very slow"
+msgstr "매우 느림"
+
+msgid "Slow"
+msgstr "느림"
+
+msgid "Normal"
+msgstr "보통"
+
+msgid "Fast"
+msgstr "빠름"
+
+msgid "Very fast"
+msgstr "매우 빠름"
+
+msgid "Options and steps follow the Bilibili player's danmaku settings."
+msgstr "항목과 단계는 Bilibili 플레이어의 탄막 설정을 따릅니다."
+
+msgid "Subtitle size"
+msgstr "자막 크기"
+
+msgid "Subtitle position"
+msgstr "자막 위치"
+
+msgid "Subtitle background opacity"
+msgstr "자막 배경 불투명도"
+
+msgid "Larger value moves it lower (0 = top, 100 = bottom)."
+msgstr "값이 클수록 아래로 갑니다 (0 = 위, 100 = 아래)."
+
+msgid "Subtitles can only be read from the page (the API needs login), so turn on CC in the player first."
+msgstr "자막은 페이지에서만 가져올 수 있습니다 (API는 로그인이 필요). 먼저 플레이어에서 CC를 켜세요."
+
+msgid "Playback speed"
+msgstr "배속"

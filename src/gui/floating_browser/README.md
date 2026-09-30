@@ -381,6 +381,45 @@ Qt 主进程
 程序已在退出时递归结束子进程树（`taskkill /F /T`）。
 若 Edge 浏览器本身正在运行，它自己的 WebView2 进程属正常现象。
 
+## 多语言（i18n）
+
+界面文案跟着**主程序的语言**走，支持仓库里已有的 5 个语言：
+`zh_CN` / `zh_TW` / `ja_JP` / `ko_KR` / `es_ES`（`i18n/<locale>/LC_MESSAGES/ok.po|.mo`）。
+
+文案分两类，走的是同一条 gettext 链路：
+
+| 类别 | 例子 | 怎么翻 |
+| --- | --- | --- |
+| **ok 原生界面** | 配置页的「视频网址」「启动悬浮浏览器」「全局快捷键」 | 代码里直接写英文 msgid（`self.tr("Video URL")`），gettext 查表 |
+| **注入页面的文案** | 工具条按钮 tooltip、拖动提示、设置面板全部标签 | 登记在 `i18n.py` 的 `PAGE_TEXT`（key → 英文），主进程翻译好后随启动配置传进子进程 |
+
+**为什么页面文案要绕这一圈**：工具条和设置面板是注入到网页里的 HTML/JS，跑在 WebView2
+**子进程**里，而 `og.app.tr`（gettext 入口）在主进程。所以流程是：
+
+```
+tab.py / hotkeys.py ──self.tr（英文 msgid）────────────► gettext ──► ok.po/.mo
+i18n.PAGE_TEXT ──page_texts()（主进程翻译）──► 启动配置 ──► 子进程注入 window.__okI18N
+                                                              └─► JS 里 T('panel.area') 取值
+```
+
+好处是**翻译仍然只维护在 .po 文件里**，JS 里不再另搞一份语言表；而且英文原文就是 msgid，
+和项目其它模块一致。JS 侧 `T(key)` 拿不到表时会退回 key 本身，最坏情况是显示成 key 而不是崩掉。
+
+**加一条新文案的步骤**：
+
+1. ok 界面 → 直接在代码里写英文 `self.tr("...")`；
+   页面 → 在 `i18n.py` 的 `PAGE_TEXT` 里登记 key，JS 里用 `T('key')`。
+2. 给 5 个语言的 `ok.po` 补条目（msgid = 英文原文），空 `msgstr` 会被 gettext 当成"未翻译"退回英文。
+3. **编译 mo**：`polib` 的 `po.save_as_mofile()`（或 ok 的 `convert_to_mo_files()`）。
+   ⚠️ 只改 `.po` 不编译 `.mo` 是不生效的 —— 运行时装的是 `.mo`。
+
+**容易踩的坑**：
+
+- **不同语义别共用同一个英文 msgid**。比如状态栏的「倍速」和设置面板的「弹幕速度」
+  一开始都译成了 `Speed`，结果两边显示同一条译文（已改成 `Playback speed` / `Speed`）。
+- 加条目时**别覆盖已有译文**（别人可能已经翻好了），只在 `msgstr` 为空时补。
+- 日志与注释**不进翻译表**（ok-script 的约定：只翻 GUI 可见文案）。
+
 ## 自测脚本
 
 ```bash
@@ -392,6 +431,9 @@ Qt 主进程
 
 # 弹幕数据链路：protobuf/XML 解析 + 本地引擎（避让/seek/模式），不依赖窗口，跑得很快
 .venv\Scripts\python.exe tests/danmaku_engine_check.py
+
+# 多语言：文案表与页面脚本用的 key 是否对得上、5 个语言的 po/mo 是否齐、源码里有没有中文 msgid
+.venv\Scripts\python.exe tests/floating_browser_i18n.py
 
 # 配置与标签解析集成检查
 .venv\Scripts\python.exe tests/floating_browser_integration.py

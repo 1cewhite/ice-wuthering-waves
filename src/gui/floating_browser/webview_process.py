@@ -52,6 +52,7 @@ from typing import Any
 from src.gui.floating_browser import log as fb_log
 from src.gui.floating_browser import bilibili_danmaku
 from src.gui.floating_browser.danmaku_overlay import MIRROR_JS, DanmakuOverlay
+from src.gui.floating_browser.i18n import page_i18n_script
 from src.gui.floating_browser.subtitle_overlay import SubtitleOverlay
 
 try:  # Windows 专用；其它平台走降级分支
@@ -229,6 +230,21 @@ CONTROL_BAR_JS = r"""
     // 工具条图标（内联 SVG，用 currentColor 跟随主题）
     var ICON_PIN = '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M4.146.146A.5.5 0 0 1 4.5 0h7a.5.5 0 0 1 .5.5c0 .68-.342 1.174-.646 1.479-.126.125-.25.224-.354.298v4.431l.078.048c.203.127.476.314.751.555C12.36 7.775 13 8.527 13 9.5a.5.5 0 0 1-.5.5h-4v4.5a.5.5 0 0 1-1 0V10h-4a.5.5 0 0 1-.5-.5c0-.973.64-1.725 1.17-2.189A5.9 5.9 0 0 1 5 6.708V2.277a3 3 0 0 1-.354-.298C4.342 1.674 4 1.179 4 .5a.5.5 0 0 1 .146-.354z"/></svg>';
     var ICON_MIN = '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><rect x="3" y="7.25" width="10" height="1.5" rx="0.75"/></svg>';
+    // 页面文案：由主进程按当前语言翻译好注入 ``window.__okI18N``（见 i18n.py）。
+    //
+    // ⚠️ 这里**每次都现查表**，不要在注入时把 window.__okT 快照下来：
+    // 几段注入脚本的执行顺序并不保证（WebView2 的 ExecuteScriptAsync 是异步的），
+    // 快照过一次就可能永久绑到 fallback 上 —— 表现为界面上直接显示成 key
+    // （比如按钮 tooltip 变成 "bar.danmaku"）。实测踩过。
+    function T(key, fallback) {
+        var table = window.__okI18N || {};
+        var value = table[key];
+        if (value !== undefined && value !== null && value !== '') {
+            return value;
+        }
+        return fallback === undefined ? key : fallback;
+    }
+
     var ICON_DM = '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M3 2.5h10A1.5 1.5 0 0 1 14.5 4v5.5A1.5 1.5 0 0 1 13 11H8.6L5.2 14v-3H3a1.5 1.5 0 0 1-1.5-1.5V4A1.5 1.5 0 0 1 3 2.5z"/><path d="M4.6 5.6h6.8v1.2H4.6z" fill="#101216"/><path d="M4.6 8h4.4v1.2H4.6z" fill="#101216"/></svg>';
     var ICON_CC = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><rect x="1.7" y="3.2" width="12.6" height="9.6" rx="1.8"/><path d="M4.6 8.3h2.3M9.1 8.3h2.3M6.4 11h3.2"/></svg>';
     var ICON_CLOSE = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4.2 4.2 L11.8 11.8 M11.8 4.2 L4.2 11.8"/></svg>';
@@ -335,24 +351,32 @@ CONTROL_BAR_JS = r"""
         var bar = document.createElement('div');
         bar.id = '__ok_xbar';
         bar.innerHTML = [
-            '<div class="ok-drag" id="__ok_drag">拖动此处移动窗口</div>',
+            '<div class="ok-drag" id="__ok_drag">' + T('bar.drag') + '</div>',
             '<span class="ok-sep"></span>',
-            '<input type="range" id="__ok_op" min="20" max="100" value="90" title="窗口透明度">',
-            '<button id="__ok_ct" title="鼠标穿透：开启后点击会直接落到下面的窗口">穿透</button>',
+            '<input type="range" id="__ok_op" min="20" max="100" value="90" title="'
+                + T('bar.opacity') + '">',
+            '<button id="__ok_ct" title="' + T('bar.click_through') + '">'
+                + T('bar.click_through_short') + '</button>',
             '<span class="ok-sep"></span>',
-            '<button id="__ok_dm" class="ok-icon" title="映射弹幕到游戏画面最上层（点一下开/关）">' + ICON_DM + '</button>',
-            '<button id="__ok_cc" class="ok-icon" title="映射字幕到游戏画面最上层（点一下开/关；需先在播放器里打开 CC）">' + ICON_CC + '</button>',
-            '<button id="__ok_top" class="ok-icon" title="切换置顶">' + ICON_PIN + '</button>',
-            '<button id="__ok_hide" class="ok-icon" title="隐藏悬浮窗（可在ok界面再显示）">' + ICON_MIN + '</button>',
-            '<button id="__ok_close" class="ok-icon ok-close" title="关闭悬浮浏览器">' + ICON_CLOSE + '</button>',
+            '<button id="__ok_dm" class="ok-icon" title="' + T('bar.danmaku') + '">'
+                + ICON_DM + '</button>',
+            '<button id="__ok_cc" class="ok-icon" title="' + T('bar.subtitle') + '">'
+                + ICON_CC + '</button>',
+            '<button id="__ok_top" class="ok-icon" title="' + T('bar.on_top') + '">'
+                + ICON_PIN + '</button>',
+            '<button id="__ok_hide" class="ok-icon" title="' + T('bar.hide') + '">'
+                + ICON_MIN + '</button>',
+            '<button id="__ok_close" class="ok-icon ok-close" title="' + T('bar.close') + '">'
+                + ICON_CLOSE + '</button>',
         ].join('');
         document.body.appendChild(bar);
 
         var panel = document.createElement('div');
         panel.id = '__ok_panel';
         panel.style.display = 'none';
-        panel.innerHTML = '<div class="ok-ph"><span id="__ok_pt">弹幕设置</span>' +
-                          '<button class="ok-pr" id="__ok_pr">重置</button></div>' +
+        panel.innerHTML = '<div class="ok-ph"><span id="__ok_pt">'
+                          + T('panel.danmaku.title') + '</span>' +
+                          '<button class="ok-pr" id="__ok_pr">' + T('panel.reset') + '</button></div>' +
                           '<div class="ok-pb" id="__ok_pb"></div>';
         document.body.appendChild(panel);
 
@@ -370,6 +394,7 @@ CONTROL_BAR_JS = r"""
         var mirrorBtn = document.getElementById('__ok_dm');
         var subtitleBtn = document.getElementById('__ok_cc');
         bindPanelOpeners();
+        ensureTexts(0);
 
         opacity.addEventListener('input', function () {
             push({ action: 'opacity', value: clampInt(opacity.value, 20, 100, 90) });
@@ -451,7 +476,13 @@ CONTROL_BAR_JS = r"""
                   opacity: 100, font_scale: 0.8, speed_plus: 1.0},
         subtitle: {font_scale: 1.0, position: 88, bg_opacity: 0}
     };
-    var SPEED_STEPS = [[0.5, '很慢'], [0.75, '慢'], [1.0, '适中'], [1.5, '快'], [2.0, '很快']];
+    // ⚠️ 必须**延迟求值**：写成模块级常量会在脚本注入的那一刻就把文案定下来，
+    // 而文案表可能晚一步到（注入是异步的），那样速度档位就会显示成 key。
+    function speedSteps() {
+        return [[0.5, T('panel.speed.very_slow')], [0.75, T('panel.speed.slow')],
+                [1.0, T('panel.speed.normal')], [1.5, T('panel.speed.fast')],
+                [2.0, T('panel.speed.very_fast')]];
+    }
     var panelKind = null;
 
     function cloneSettings(kind) {
@@ -548,24 +579,23 @@ CONTROL_BAR_JS = r"""
         var s = panelSettings[kind];
         var html = '';
         if (kind === 'danmaku') {
-            title.textContent = '弹幕设置';
-            html += rowChips('按类型过滤（选中 = 屏蔽）', [
-                {key: 'filter_scroll', text: '滚动', on: !!s.filter_scroll},
-                {key: 'filter_fixed', text: '固定', on: !!s.filter_fixed}
+            title.textContent = T('panel.danmaku.title');
+            html += rowChips(T('panel.filter'), [
+                {key: 'filter_scroll', text: T('panel.filter.scroll'), on: !!s.filter_scroll},
+                {key: 'filter_fixed', text: T('panel.filter.fixed'), on: !!s.filter_fixed}
             ]);
-            html += rowRange('显示区域', 'area', s.area, 10, 100, '%');
-            html += rowRange('不透明度', 'opacity', s.opacity, 5, 100, '%');
-            html += rowRange('弹幕字号', 'font_scale', s.font_scale * 100, 50, 150, '%');
-            html += rowSeg('弹幕速度', 'speed_plus', s.speed_plus, SPEED_STEPS);
-            html += '<div class="ok-hint">选项与档位对齐 B 站播放器的弹幕设置。</div>';
+            html += rowRange(T('panel.area'), 'area', s.area, 10, 100, '%');
+            html += rowRange(T('panel.opacity'), 'opacity', s.opacity, 5, 100, '%');
+            html += rowRange(T('panel.font_size'), 'font_scale', s.font_scale * 100, 50, 150, '%');
+            html += rowSeg(T('panel.speed'), 'speed_plus', s.speed_plus, speedSteps());
+            html += '<div class="ok-hint">' + T('panel.danmaku.hint') + '</div>';
         } else {
-            title.textContent = '字幕设置';
-            html += rowRange('字幕大小', 'font_scale', s.font_scale * 100, 50, 200, '%');
-            html += rowRange('字幕位置', 'position', s.position, 0, 100, '%');
-            html += rowRange('字幕背景不透明度', 'bg_opacity', s.bg_opacity, 0, 100, '%');
-            html += '<div class="ok-hint">位置越大越靠下（0 = 贴顶，100 = 贴底）。</div>';
-            html += '<div class="ok-note">字幕只能从页面采集（接口未登录拿不到），' +
-                    '所以需要在播放器里打开 CC 才会有字幕。</div>';
+            title.textContent = T('panel.subtitle.title');
+            html += rowRange(T('panel.subtitle.size'), 'font_scale', s.font_scale * 100, 50, 200, '%');
+            html += rowRange(T('panel.subtitle.position'), 'position', s.position, 0, 100, '%');
+            html += rowRange(T('panel.subtitle.background'), 'bg_opacity', s.bg_opacity, 0, 100, '%');
+            html += '<div class="ok-hint">' + T('panel.subtitle.hint') + '</div>';
+            html += '<div class="ok-note">' + T('panel.subtitle.note') + '</div>';
         }
         body.innerHTML = html;
         bindPanelControls(kind);
@@ -692,6 +722,39 @@ CONTROL_BAR_JS = r"""
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') { closePanel(); }
         });
+    }
+
+    // 工具条上的静态文案（拖动提示、按钮 tooltip 与文字、重置按钮）。
+    // 工具条是在脚本注入时就把 HTML 拼好的，而文案表是主进程翻译好后
+    // **异步**注入的，两者先后顺序不保证 —— 所以等表到位后再刷一次。
+    function applyBarTexts() {
+        function setText(id, key, attribute) {
+            var el = document.getElementById(id);
+            if (!el) { return; }
+            if (attribute) {
+                el.setAttribute(attribute, T(key));
+            } else {
+                el.textContent = T(key);
+            }
+        }
+        setText('__ok_drag', 'bar.drag');
+        setText('__ok_op', 'bar.opacity', 'title');
+        setText('__ok_ct', 'bar.click_through_short');
+        setText('__ok_ct', 'bar.click_through', 'title');
+        setText('__ok_dm', 'bar.danmaku', 'title');   // 注意是 title：按钮里是 SVG，别用 textContent
+        setText('__ok_cc', 'bar.subtitle', 'title');
+        setText('__ok_top', 'bar.on_top', 'title');
+        setText('__ok_hide', 'bar.hide', 'title');
+        setText('__ok_close', 'bar.close', 'title');
+        setText('__ok_pr', 'panel.reset');
+    }
+
+    function ensureTexts(tries) {
+        if (window.__okI18N || (tries || 0) >= 20) {
+            applyBarTexts();
+            return;
+        }
+        setTimeout(function () { ensureTexts((tries || 0) + 1); }, 150);
     }
 
     function bindDrag(handle, mode) {
@@ -822,6 +885,8 @@ _state: dict[str, Any] = {
     # 字幕单独一层：弹幕层用颜色键抠图（做不了半透明），字幕要半透明背景，
     # 所以走 UpdateLayeredWindow 的逐像素 alpha。见 subtitle_overlay.py。
     "subtitle_overlay": None,
+    # 注入页面的文案表（启动配置带过来，已按当前语言翻译好）
+    "page_i18n": {},
     "media_t": 0.0,              # 页面上报的播放时刻（诊断用）
     "media_paused": True,
     "media_rate": 1.0,
@@ -1685,6 +1750,8 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
     fb_log.set_verbose(bool(config.get("verbose")))
     # 初始镜像状态（页面 loaded 之后真正生效）。两个开关各自独立。
     _state["mirror_danmaku"] = bool(config.get("mirror_danmaku") or config.get("mirror"))
+    # 页面文案表（已按当前语言翻译好，见 i18n.py）
+    _state["page_i18n"] = dict(config.get("page_i18n") or {})
     _state["mirror_subtitle"] = bool(config.get("mirror_subtitle") or config.get("mirror"))
     # 游戏窗口句柄提示（弹幕覆盖层的锚点；解析失败会自动退回跟随悬浮窗）
     _state["game_hwnd_hint"] = int(config.get("game_hwnd") or 0)
@@ -2130,7 +2197,12 @@ def run_browser_process(config: dict, command_queue, status_queue) -> None:
         stop_event.set()
         _send(status_queue, "closed", True)
 def _install_scripts(window) -> None:
-    """注入视频控制脚本与悬浮工具条。"""
+    """注入视频控制脚本、页面文案表与悬浮工具条。
+
+    文案表必须**先**注入：工具条和设置面板的 HTML 在构建时就要取文案
+    （``__okT('bar.drag')``），晚一步就只能显示 key。
+    """
+    _evaluate(window, page_i18n_script(_state.get("page_i18n") or None))
     _evaluate(window, VIDEO_JS)
     _evaluate(window, CONTROL_BAR_JS)
     _evaluate(window, MIRROR_JS)

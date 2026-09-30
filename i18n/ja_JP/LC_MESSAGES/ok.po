@@ -21,9 +21,7 @@ msgstr "ホットキーエラー！ホットキーの設定が正しいか確認
 msgid "Can not switch to levitator please ensure you have equipped echos!"
 msgstr "レビテートツールに切り替えられません。音骸を装備していることを確認してください！"
 
-msgid ""
-"(1-6) Important, Choose which level to farm, lower levels might not produce "
-"a echo"
+msgid "(1-6) Important, Choose which level to farm, lower levels might not produce a echo"
 msgstr "(1-6) 重要、周回するレベルを選択してください。低レベルでは音骸がドロップしない場合があります。"
 
 msgid "Boss1"
@@ -68,9 +66,7 @@ msgstr "共鳴解放キー (デフォルトr)"
 msgid "Auto Target"
 msgstr "自動ターゲット"
 
-msgid ""
-"Turn off to enable auto combat only when manually target enemy using middle "
-"click"
+msgid "Turn off to enable auto combat only when manually target enemy using middle click"
 msgstr "オフにすると、マウスの中ボタンで手動で敵をターゲットした時のみ自動戦闘が有効になります"
 
 msgid "Repeat Farm Count"
@@ -199,12 +195,10 @@ msgstr "月パス設定"
 msgid "Monthly Card Time"
 msgstr "月パス時間"
 
-msgid ""
-"Your computer's local time when the monthly card will popup, hour in (1-24)"
+msgid "Your computer's local time when the monthly card will popup, hour in (1-24)"
 msgstr "月パスのポップアップが表示されるPCのローカル時間 (1-24時)"
 
-msgid ""
-"must be in game world and in teams, please check you game resolution is 16:9"
+msgid "must be in game world and in teams, please check you game resolution is 16:9"
 msgstr "フィールドのチーム内にいる必要があります。ゲーム解像度が16:9であることを確認してください。"
 
 msgid "Capture Frame Count"
@@ -249,9 +243,7 @@ msgstr "いいえ"
 msgid "True"
 msgstr "はい"
 
-msgid ""
-"Can't load game hotkey, please equip echos for all characters and use A-Z as"
-" hotkeys for skills, detected key:{}"
+msgid "Can't load game hotkey, please equip echos for all characters and use A-Z as hotkeys for skills, detected key:{}"
 msgstr "ゲームのホットキーを読み込めません。全キャラクターに音骸を装備し、スキルにA-Zのキーを割り当ててください。検出されたキー：{}"
 
 msgid "Tool Key"
@@ -323,9 +315,7 @@ msgstr "ローレライ"
 msgid "click f2 to open the book"
 msgstr "F2でガイドブックを開く"
 
-msgid ""
-"Check configs to keep, click start in game world, must be in a 16:9 screen "
-"ratio"
+msgid "Check configs to keep, click start in game world, must be in a 16:9 screen ratio"
 msgstr "保持する設定にチェックを入れ、フィールドで開始してください。16:9の画面比率である必要があります。"
 
 msgid "Boss"
@@ -448,18 +438,11 @@ msgstr "音骸データドック自動合成"
 msgid "Data Merge Completed!"
 msgstr "データドック合成完了！"
 
-msgid ""
-"Auto combat error: Make sure you're equipping echos and turn off effect that"
-" changes the game color, (Game Gammar/Nvidia AMD Game Filter), turn off "
-"Motion Blur in game video options"
-msgstr ""
-"自動戦闘エラー：音骸を装備し、モーションブラーをオフ、ゲームをデフォルトの明るさ設定にし、ゲームの色を変更する設定（ナイトモード、グラフィックカードのフィルター等）を全てオフにしてください。"
+msgid "Auto combat error: Make sure you're equipping echos and turn off effect that changes the game color, (Game Gammar/Nvidia AMD Game Filter), turn off Motion Blur in game video options"
+msgstr "自動戦闘エラー：音骸を装備し、モーションブラーをオフ、ゲームをデフォルトの明るさ設定にし、ゲームの色を変更する設定（ナイトモード、グラフィックカードのフィルター等）を全てオフにしてください。"
 
-msgid ""
-"Auto combat error: Make sure to turn off effect that changes the game color,"
-" (Game Gammar/Nvidia AMD Game Filter/HDR)"
-msgstr ""
-"自動戦闘エラー：ゲームをデフォルトの明るさ設定にし、ゲームの色を変更する設定（ナイトモード、グラフィックカードのフィルター、HDR等）を全てオフにしてください。"
+msgid "Auto combat error: Make sure to turn off effect that changes the game color, (Game Gammar/Nvidia AMD Game Filter/HDR)"
+msgstr "自動戦闘エラー：ゲームをデフォルトの明るさ設定にし、ゲームの色を変更する設定（ナイトモード、グラフィックカードのフィルター、HDR等）を全てオフにしてください。"
 
 msgid "Auto Login"
 msgstr "自動ログイン"
@@ -488,9 +471,7 @@ msgstr "デイリータスク"
 msgid "Dreamless"
 msgstr "無妄者"
 
-msgid ""
-"Farms the selected Tacet Suppression, until no stamina. Must be able to "
-"teleport (F2)."
+msgid "Farms the selected Tacet Suppression, until no stamina. Must be able to teleport (F2)."
 msgstr "選択した無音区を結晶波長板がなくなるまで周回します。テレポート(F2)可能である必要があります。"
 
 msgid "Login, claim monthly card, farm echo, and claim daily reward"
@@ -538,9 +519,7 @@ msgstr "戦闘後に音骸を自動収集"
 msgid "Farm Map with Star Path"
 msgstr "スターパスでマップを周回"
 
-msgid ""
-"Farm world map with a marked path of stars (diamond as the starting point), "
-"start in the map screen"
+msgid "Farm world map with a marked path of stars (diamond as the starting point), start in the map screen"
 msgstr "星マークでマークされたルートを周回します（菱形が開始地点）。マップ画面から開始してください。"
 
 msgid "Stars"
@@ -564,8 +543,7 @@ msgstr "戦闘待機時間(秒)"
 msgid "Simulation Challenge"
 msgstr "シミュレーション挑戦"
 
-msgid ""
-"Farms the selected Simulation Challenge. Must be able to teleport (F2)."
+msgid "Farms the selected Simulation Challenge. Must be able to teleport (F2)."
 msgstr "選択したシミュレーション挑戦を周回します。「黎明の塔-剣闘士の肖像」にテレポート可能である必要があります。"
 
 msgid "Material Selection"
@@ -598,8 +576,7 @@ msgstr "F2リスト内の凝素領域の番号"
 msgid "not enough stamina"
 msgstr "結晶波長板が不足しています"
 
-msgid ""
-"Click skill failed, check if the keybinding is correct in ok-ww settings!"
+msgid "Click skill failed, check if the keybinding is correct in ok-ww settings!"
 msgstr "スキル発動に失敗しました。ok-wwの設定でキー割り当てが正しいか確認してください！"
 
 msgid "Change Time to Night"
@@ -761,9 +738,7 @@ msgstr "選択アカウントを確認しました: {account}"
 msgid "Account display does not match, retrying ({attempt}/{max_retries})"
 msgstr "表示中のアカウントが一致しません。再試行中 ({attempt}/{max_retries})"
 
-msgid ""
-"Account selection failed after {max_retries} retries; {account} is still not"
-" displayed. Continuing login attempt"
+msgid "Account selection failed after {max_retries} retries; {account} is still not displayed. Continuing login attempt"
 msgstr "アカウント選択に {max_retries} 回失敗しました。{account} がまだ表示されていません。ログインを続行します"
 
 msgid "Failed to switch account"
@@ -887,14 +862,10 @@ msgstr "カスタムコードをリセット"
 msgid "Reset this character to built in code and remove the custom code?"
 msgstr "このキャラクターを内蔵コードに戻し、カスタムコードを削除しますか？"
 
-msgid ""
-"Custom code matches built in code. Removed custom code and switched to built"
-" in."
+msgid "Custom code matches built in code. Removed custom code and switched to built in."
 msgstr "カスタムコードは内蔵コードと同じです。カスタムコードを削除し、内蔵に切り替えました。"
 
-msgid ""
-"Custom code matches built in code. Removed custom code, switched to built "
-"in, and reloaded loaded characters."
+msgid "Custom code matches built in code. Removed custom code, switched to built in, and reloaded loaded characters."
 msgstr "カスタムコードは内蔵コードと同じです。削除し、内蔵に切り替え、読み込み済みキャラクターを再読み込みしました。"
 
 msgid "Custom code reset to built in code."
@@ -912,20 +883,14 @@ msgstr "実装したい内容:"
 msgid "Please modify the full {class_name} character automation code above."
 msgstr "上記の {class_name} キャラクター自動化コード全体を修正してください。"
 
-msgid ""
-"Return only the complete modified Python code for the whole file, not a "
-"patch and not an explanation."
+msgid "Return only the complete modified Python code for the whole file, not a patch and not an explanation."
 msgstr "パッチや説明ではなく、ファイル全体の完全な修正済み Python コードのみを返してください。"
 
-msgid ""
-"Keep the class name as {class_name}. Preserve imports that are still needed."
+msgid "Keep the class name as {class_name}. Preserve imports that are still needed."
 msgstr "クラス名は {class_name} のままにしてください。必要な import は残してください。"
 
-msgid ""
-"Use this BaseChar reference while reasoning about helper methods, task APIs,"
-" state, switching, cooldowns, and combat flow:"
-msgstr ""
-"ヘルパーメソッド、タスク API、状態、切り替え、クールダウン、戦闘フローを検討する際は、この BaseChar リファレンスを使用してください:"
+msgid "Use this BaseChar reference while reasoning about helper methods, task APIs, state, switching, cooldowns, and combat flow:"
+msgstr "ヘルパーメソッド、タスク API、状態、切り替え、クールダウン、戦闘フローを検討する際は、この BaseChar リファレンスを使用してください:"
 
 msgid "Rover: Spectro"
 msgstr "漂泊者・回折"
@@ -1095,9 +1060,7 @@ msgstr "タスクが停止するまでガーデン操作を検出してクリッ
 msgid "Check Weekly Garden"
 msgstr "ウィークリーガーデンを確認"
 
-msgid ""
-"After claiming daily rewards, check weekly Garden progress and run Garden "
-"Task if 6000 points has not been reached."
+msgid "After claiming daily rewards, check weekly Garden progress and run Garden Task if 6000 points has not been reached."
 msgstr "デイリー報酬の受取後、ウィークリーガーデンの進捗を確認し、6000ポイント未達ならガーデンタスクを実行します。"
 
 msgid "Guidebook Key"
@@ -1112,9 +1075,7 @@ msgstr "秧秧・玄翎"
 msgid "Merge Discarded Echoes"
 msgstr "破棄済み音骸を融合"
 
-msgid ""
-"Must have 1000 discarded Echo to Run, Merge discarded Echoes in full "
-"batches of 100."
+msgid "Must have 1000 discarded Echo to Run, Merge discarded Echoes in full batches of 100."
 msgstr "実行には破棄済み音骸が1000個必要です。破棄済み音骸を100個単位で融合します。"
 
 msgid "Bag Key"
@@ -1386,3 +1347,300 @@ msgstr "チームを削除しました。"
 
 msgid "JingRan"
 msgstr "景燃"
+
+msgid "Bilibili"
+msgstr "ビリビリ"
+
+msgid "Video URL"
+msgstr "動画URL"
+
+msgid "Video source"
+msgstr "再生ソース"
+
+msgid "Start floating browser"
+msgstr "フローティングブラウザを起動"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Show / Hide"
+msgstr "表示 / 非表示"
+
+msgid "Hover opacity (click-through)"
+msgstr "透過時のホバー不透明度"
+
+msgid "In click-through mode the window drops to this opacity while the pointer hovers over it, so you can see what is underneath."
+msgstr "透過モードでマウスがウィンドウ上にある間、この不透明度まで下がり、下の内容が見やすくなります。"
+
+msgid "Output floating browser logs"
+msgstr "フローティングブラウザのログを出力"
+
+msgid "Master switch for all floating browser output in the console and log file"
+msgstr "フローティングブラウザのコンソール / ログファイルへの全出力を制御するマスタースイッチ"
+
+msgid "(including subprocess diagnostics and launcher messages). Off by default."
+msgstr "（サブプロセスの診断とランチャー情報を含む）。既定ではオフ。"
+
+msgid "On-screen notices (pop-ups, status bar) are not affected."
+msgstr "画面上の通知（ポップアップ、ステータスバー）には影響しません。"
+
+msgid "Window size, opacity, click-through, always-on-top, and the danmaku/subtitle mirroring switches"
+msgstr "ウィンドウサイズ、不透明度、透過、常に最前面、および「弾幕」「字幕」のミラー切り替えは、"
+
+msgid "are all on the toolbar at the top of the floating window: drag the left area to move it,"
+msgstr "フローティングウィンドウ上部のツールバーで直接操作できます。左側をドラッグで移動、"
+
+msgid "drag the right/bottom edge to resize."
+msgstr "右側 / 下側の端をドラッグでサイズ変更します。"
+
+msgid "Startup & window"
+msgstr "起動とウィンドウ操作"
+
+msgid "Format example: ctrl+shift+space; leave empty or use none to disable"
+msgstr "書式例：ctrl+shift+space。空欄または none で無効になります"
+
+msgid "After changing hotkeys, click Save settings and restart the floating browser."
+msgstr "ホットキー変更後は「設定を保存」をクリックし、フローティングブラウザを再起動してください。"
+
+msgid "The default step for forward/backward is 5 seconds."
+msgstr "早送り / 巻き戻しの既定のステップは 5 秒です。"
+
+msgid "Save settings"
+msgstr "設定を保存"
+
+msgid "Reload hotkeys now"
+msgstr "ホットキーを今すぐ再読み込み"
+
+msgid "Global hotkeys"
+msgstr "グローバルホットキー"
+
+msgid "Not running"
+msgstr "未起動"
+
+msgid "Status"
+msgstr "実行状態"
+
+msgid "Floating browser"
+msgstr "フローティングブラウザ"
+
+msgid "Settings saved"
+msgstr "設定を保存しました"
+
+msgid "Failed to save the floating browser config: {error}"
+msgstr "フローティングブラウザの設定保存に失敗: {error}"
+
+msgid "Failed to save the floating browser config: "
+msgstr "フローティングブラウザの設定保存に失敗："
+
+msgid "Save failed"
+msgstr "保存に失敗"
+
+msgid "Failed to read config {name}: {error}"
+msgstr "設定 {name} の読み込みに失敗: {error}"
+
+msgid "Failed to save the window geometry: {error}"
+msgstr "ウィンドウ位置の保存に失敗: {error}"
+
+msgid "Save first, then restart the floating browser to rebind the hotkeys."
+msgstr "先に保存し、フローティングブラウザを再起動してホットキーを再登録してください。"
+
+msgid "The floating browser is not running; hotkeys apply on start"
+msgstr "フローティングブラウザは未起動です。ホットキーは起動時に有効になります"
+
+msgid "Notice"
+msgstr "お知らせ"
+
+msgid "These hotkeys are taken by other programs: "
+msgstr "次のホットキーは他のアプリが使用中です："
+
+msgid ", please pick different combinations in Global hotkeys."
+msgstr "。「グローバルホットキー」で別の組み合わせに変更してください。"
+
+msgid "Some hotkeys unavailable"
+msgstr "一部のホットキーが使用できません"
+
+msgid "Floating browser started"
+msgstr "フローティングブラウザを起動しました"
+
+msgid "WebView2 runtime not found; opening the video page in the system browser instead."
+msgstr "WebView2 ランタイムが見つかりません。システムブラウザで動画ページを開きます。"
+
+msgid "Install WebView2 to get the floating window and hotkey control."
+msgstr "WebView2 をインストールすると、フローティングウィンドウとホットキー操作が使えます。"
+
+msgid "Running in degraded mode"
+msgstr "機能制限モードで実行中"
+
+msgid "Floating browser closed"
+msgstr "フローティングブラウザを閉じました"
+
+msgid "On"
+msgstr "オン"
+
+msgid "Off"
+msgstr "オフ"
+
+msgid "Click-through"
+msgstr "マウス透過"
+
+msgid ", press the toggle click-through hotkey to turn it off."
+msgstr "。「透過切り替え」ホットキーで解除できます。"
+
+msgid "Started, no video detected"
+msgstr "起動済み、動画を検出できません"
+
+msgid "Open a video page in the floating window and start playback; hotkeys work from then on."
+msgstr "フローティングウィンドウで動画ページを開いて再生を開始すると、ホットキーが使えます。"
+
+msgid "Paused"
+msgstr "一時停止中"
+
+msgid "Playing"
+msgstr "再生中"
+
+msgid "Speed"
+msgstr "弾幕の速度"
+
+msgid "Volume"
+msgstr "音量"
+
+msgid " (muted)"
+msgstr "（ミュート）"
+
+msgid "Window"
+msgstr "ウィンドウ"
+
+msgid "Opacity"
+msgstr "不透明度"
+
+msgid "Title"
+msgstr "タイトル"
+
+msgid "Play / Pause"
+msgstr "再生 / 一時停止"
+
+msgid "Toggle video playback"
+msgstr "動画の再生状態を切り替え"
+
+msgid "Skip forward by the configured seconds"
+msgstr "設定した秒数だけ前にスキップ"
+
+msgid "Skip backward by the configured seconds"
+msgstr "設定した秒数だけ後ろにスキップ"
+
+msgid "Hold for 3x speed"
+msgstr "長押しで 3 倍速"
+
+msgid "Play at 3x while held, restore the original speed on release"
+msgstr "押している間は 3 倍速、離すと元の速度に戻ります"
+
+msgid "Volume +10%"
+msgstr "音量 +10%"
+
+msgid "Raise the volume by 10%"
+msgstr "音量を 10% 上げる"
+
+msgid "Volume -10%"
+msgstr "音量 -10%"
+
+msgid "Lower the volume by 10%"
+msgstr "音量を 10% 下げる"
+
+msgid "Toggle click-through"
+msgstr "透過を切り替え"
+
+msgid "Turn mouse click-through on or off"
+msgstr "マウス透過のオン / オフ"
+
+msgid "Toggle overlay mirroring"
+msgstr "ミラー表示を切り替え"
+
+msgid "Mirror Bilibili danmaku/subtitles onto the game; press again to stop"
+msgstr "Bilibili の弾幕 / 字幕をゲーム画面の最前面に表示します。もう一度押すと停止"
+
+msgid "Not set"
+msgstr "未設定"
+
+msgid "Drag here to move the window"
+msgstr "ここをドラッグでウィンドウ移動"
+
+msgid "Window opacity"
+msgstr "ウィンドウの不透明度"
+
+msgid "Click"
+msgstr "透過"
+
+msgid "Click-through: clicks pass to the window below"
+msgstr "マウス透過：オンにするとクリックが下のウィンドウに届きます"
+
+msgid "Mirror danmaku onto the game (click to toggle, right-click for settings)"
+msgstr "弾幕をゲーム画面の最前面に表示（クリックで切替、右クリックで設定）"
+
+msgid "Mirror subtitles onto the game (click to toggle, right-click for settings; enable CC in the player first)"
+msgstr "字幕をゲーム画面の最前面に表示（クリックで切替、右クリックで設定。先にプレーヤーで CC をオンに）"
+
+msgid "Toggle always-on-top"
+msgstr "常に最前面を切り替え"
+
+msgid "Hide the floating window (show it again from the ok window)"
+msgstr "フローティングウィンドウを隠す（ok 画面から再表示できます）"
+
+msgid "Close the floating browser"
+msgstr "フローティングブラウザを閉じる"
+
+msgid "Danmaku settings"
+msgstr "弾幕設定"
+
+msgid "Subtitle settings"
+msgstr "字幕設定"
+
+msgid "Filter by type (checked = hidden)"
+msgstr "種類でフィルタ（チェック = 非表示）"
+
+msgid "Scrolling"
+msgstr "スクロール"
+
+msgid "Fixed"
+msgstr "固定"
+
+msgid "Display area"
+msgstr "表示領域"
+
+msgid "Font size"
+msgstr "弾幕の文字サイズ"
+
+msgid "Very slow"
+msgstr "とても遅い"
+
+msgid "Slow"
+msgstr "遅い"
+
+msgid "Normal"
+msgstr "普通"
+
+msgid "Fast"
+msgstr "速い"
+
+msgid "Very fast"
+msgstr "とても速い"
+
+msgid "Options and steps follow the Bilibili player's danmaku settings."
+msgstr "項目と段階は Bilibili プレーヤーの弾幕設定に合わせています。"
+
+msgid "Subtitle size"
+msgstr "字幕サイズ"
+
+msgid "Subtitle position"
+msgstr "字幕の位置"
+
+msgid "Subtitle background opacity"
+msgstr "字幕背景の不透明度"
+
+msgid "Larger value moves it lower (0 = top, 100 = bottom)."
+msgstr "値が大きいほど下になります（0 = 上端、100 = 下端）。"
+
+msgid "Subtitles can only be read from the page (the API needs login), so turn on CC in the player first."
+msgstr "字幕はページからのみ取得できます（API にはログインが必要）。先にプレーヤーで CC をオンにしてください。"
+
+msgid "Playback speed"
+msgstr "再生速度"

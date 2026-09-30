@@ -21,9 +21,7 @@ msgstr "自动游戏快捷键与软件设置中不一致! 请检查是否正确�
 msgid "Can not switch to levitator please ensure you have equipped echos!"
 msgstr "无法切换工具栏到控物, 请确保已经装备主声骸, 并工具栏切换为控物!"
 
-msgid ""
-"(1-6) Important, Choose which level to farm, lower levels might not produce "
-"a echo"
+msgid "(1-6) Important, Choose which level to farm, lower levels might not produce a echo"
 msgstr "(1-6) 重要, 选择你对应世界等级可以产出声骸的难度, 从上到下为1-6"
 
 msgid "Boss1"
@@ -68,9 +66,7 @@ msgstr "共鸣解放快捷键(默认r)"
 msgid "Auto Target"
 msgstr "自动选取敌人"
 
-msgid ""
-"Turn off to enable auto combat only when manually target enemy using middle "
-"click"
+msgid "Turn off to enable auto combat only when manually target enemy using middle click"
 msgstr "关闭时仅在手动鼠标中键选取敌人后才会自动战斗"
 
 msgid "Repeat Farm Count"
@@ -199,12 +195,10 @@ msgstr "小月卡设置"
 msgid "Monthly Card Time"
 msgstr "月卡时间"
 
-msgid ""
-"Your computer's local time when the monthly card will popup, hour in (1-24)"
+msgid "Your computer's local time when the monthly card will popup, hour in (1-24)"
 msgstr "几点会弹出月卡提示, 本地计算机时间(1-24)"
 
-msgid ""
-"must be in game world and in teams, please check you game resolution is 16:9"
+msgid "must be in game world and in teams, please check you game resolution is 16:9"
 msgstr "必须在大世界队伍中, 请点击截图测试,检查游戏分辨率是否是16:9"
 
 msgid "Capture Frame Count"
@@ -249,9 +243,7 @@ msgstr "否"
 msgid "True"
 msgstr "是"
 
-msgid ""
-"Can't load game hotkey, please equip echos for all characters and use A-Z as"
-" hotkeys for skills, detected key:{}"
+msgid "Can't load game hotkey, please equip echos for all characters and use A-Z as hotkeys for skills, detected key:{}"
 msgstr "检测技能快捷键失败{},请确认已装备声骸,并且使用A-Z字母为游戏快捷键,如果确认无误依然报错,配置关闭快捷键检测."
 
 msgid "Tool Key"
@@ -323,9 +315,7 @@ msgstr "罗蕾莱"
 msgid "click f2 to open the book"
 msgstr "点击F2打开书"
 
-msgid ""
-"Check configs to keep, click start in game world, must be in a 16:9 screen "
-"ratio"
+msgid "Check configs to keep, click start in game world, must be in a 16:9 screen ratio"
 msgstr "必须16:9分辨率, 没有勾选的都会标记为弃置, 大世界启动"
 
 msgid "Boss"
@@ -448,15 +438,10 @@ msgstr "自动合成声骸"
 msgid "Data Merge Completed!"
 msgstr "自动合成声骸完成!"
 
-msgid ""
-"Auto combat error: Make sure you're equipping echos and turn off effect that"
-" changes the game color, (Game Gammar/Nvidia AMD Game Filter), turn off "
-"Motion Blur in game video options"
+msgid "Auto combat error: Make sure you're equipping echos and turn off effect that changes the game color, (Game Gammar/Nvidia AMD Game Filter), turn off Motion Blur in game video options"
 msgstr "自动战斗错误:请确认已装备声骸,关闭运动模糊,游戏为默认亮度,并关闭夜灯模式/显示器高级色彩/显卡滤镜等一切改变游戏颜色的配置."
 
-msgid ""
-"Auto combat error: Make sure to turn off effect that changes the game color,"
-" (Game Gammar/Nvidia AMD Game Filter/HDR)"
+msgid "Auto combat error: Make sure to turn off effect that changes the game color, (Game Gammar/Nvidia AMD Game Filter/HDR)"
 msgstr "自动战斗错误:请设置游戏为默认亮度,并关闭夜灯模式/显示器高级色彩/显卡滤镜/HDR等一切改变游戏颜色的配置."
 
 msgid "Auto Login"
@@ -486,9 +471,7 @@ msgstr "日常一条龙"
 msgid "Dreamless"
 msgstr "无妄者"
 
-msgid ""
-"Farms the selected Tacet Suppression, until no stamina. Must be able to "
-"teleport (F2)."
+msgid "Farms the selected Tacet Suppression, until no stamina. Must be able to teleport (F2)."
 msgstr "刷选定的无音区, 直到没有体力, 需要可传送"
 
 msgid "Login, claim monthly card, farm echo, and claim daily reward"
@@ -536,9 +519,7 @@ msgstr "战斗后自动拾取声骸"
 msgid "Farm Map with Star Path"
 msgstr "标记寻路刷大地图"
 
-msgid ""
-"Farm world map with a marked path of stars (diamond as the starting point), "
-"start in the map screen"
+msgid "Farm world map with a marked path of stars (diamond as the starting point), start in the map screen"
 msgstr "刷用星星标记的路径, 钻石作为起点, 在大地图界面开始, 工具使用钩锁."
 
 msgid "Stars"
@@ -562,8 +543,7 @@ msgstr "战斗开始前等待时间(秒)"
 msgid "Simulation Challenge"
 msgstr "模拟领域"
 
-msgid ""
-"Farms the selected Simulation Challenge. Must be able to teleport (F2)."
+msgid "Farms the selected Simulation Challenge. Must be able to teleport (F2)."
 msgstr "需要「黎那汐塔-角斗士的肖像」可传送"
 
 msgid "Material Selection"
@@ -596,8 +576,7 @@ msgstr "F2列表中第几个凝素领域"
 msgid "not enough stamina"
 msgstr "体力不足"
 
-msgid ""
-"Click skill failed, check if the keybinding is correct in ok-ww settings!"
+msgid "Click skill failed, check if the keybinding is correct in ok-ww settings!"
 msgstr "释放技能失败, 请检查ok-ww按键设置是正确!"
 
 msgid "Change Time to Night"
@@ -744,8 +723,7 @@ msgstr "必要时，前往梦魇巢穴获取声骸完成日常"
 msgid "Continue Farm After Daily"
 msgstr "完成日常后继续刷取体力"
 
-msgid ""
-"After completing daily activity, continue farming stamina until depleted."
+msgid "After completing daily activity, continue farming stamina until depleted."
 msgstr "在完成日常任务活跃度之后仍然刷取体力直到体力耗尽"
 
 msgid "F10"
@@ -811,9 +789,7 @@ msgstr "已确认选中账号：{account}"
 msgid "Account display does not match, retrying ({attempt}/{max_retries})"
 msgstr "账号显示不匹配，重试（{attempt}/{max_retries}）"
 
-msgid ""
-"Account selection failed after {max_retries} retries; {account} is still not"
-" displayed. Continuing login attempt"
+msgid "Account selection failed after {max_retries} retries; {account} is still not displayed. Continuing login attempt"
 msgstr "账号选择失败，已重试 {max_retries} 次仍未显示 {account}，继续尝试登录"
 
 msgid "Failed to switch account"
@@ -937,14 +913,10 @@ msgstr "重置自定义代码"
 msgid "Reset this character to built in code and remove the custom code?"
 msgstr "将此角色重置为内置代码并移除自定义代码吗？"
 
-msgid ""
-"Custom code matches built in code. Removed custom code and switched to built"
-" in."
+msgid "Custom code matches built in code. Removed custom code and switched to built in."
 msgstr "自定义代码与内置代码相同。已移除自定义代码并切换到内置。"
 
-msgid ""
-"Custom code matches built in code. Removed custom code, switched to built "
-"in, and reloaded loaded characters."
+msgid "Custom code matches built in code. Removed custom code, switched to built in, and reloaded loaded characters."
 msgstr "自定义代码与内置代码相同。已移除自定义代码，切换到内置，并重新加载已加载角色。"
 
 msgid "Custom code reset to built in code."
@@ -962,18 +934,13 @@ msgstr "我想实现："
 msgid "Please modify the full {class_name} character automation code above."
 msgstr "请修改上面完整的 {class_name} 角色自动化代码。"
 
-msgid ""
-"Return only the complete modified Python code for the whole file, not a "
-"patch and not an explanation."
+msgid "Return only the complete modified Python code for the whole file, not a patch and not an explanation."
 msgstr "只返回整个文件完整修改后的 Python 代码，不要返回补丁或解释。"
 
-msgid ""
-"Keep the class name as {class_name}. Preserve imports that are still needed."
+msgid "Keep the class name as {class_name}. Preserve imports that are still needed."
 msgstr "保持类名为 {class_name}。保留仍然需要的 import。"
 
-msgid ""
-"Use this BaseChar reference while reasoning about helper methods, task APIs,"
-" state, switching, cooldowns, and combat flow:"
+msgid "Use this BaseChar reference while reasoning about helper methods, task APIs, state, switching, cooldowns, and combat flow:"
 msgstr "在思考辅助方法、任务 API、状态、切人、冷却和战斗流程时，请使用这个 BaseChar 参考："
 
 msgid "Rover: Spectro"
@@ -1147,9 +1114,7 @@ msgstr "自动检测并点击乐园操作，直到任务停止。"
 msgid "Check Weekly Garden"
 msgstr "检查每周乐园"
 
-msgid ""
-"After claiming daily rewards, check weekly Garden progress and run Garden "
-"Task if 6000 points has not been reached."
+msgid "After claiming daily rewards, check weekly Garden progress and run Garden Task if 6000 points has not been reached."
 msgstr "领取日常奖励后检查每周乐园进度；如果尚未达到 6000 点，则运行乐园任务。"
 
 msgid "Guidebook Key"
@@ -1164,9 +1129,7 @@ msgstr "秧秧·玄翎"
 msgid "Merge Discarded Echoes"
 msgstr "融合已弃置声骸"
 
-msgid ""
-"Must have 1000 discarded Echo to Run, Merge discarded Echoes in full "
-"batches of 100."
+msgid "Must have 1000 discarded Echo to Run, Merge discarded Echoes in full batches of 100."
 msgstr "运行前必须有1000个已弃置声骸，每批融合100个。"
 
 msgid "Bag Key"
@@ -1435,3 +1398,300 @@ msgstr "队伍已删除。"
 
 msgid "JingRan"
 msgstr "景燃"
+
+msgid "Bilibili"
+msgstr "哔哩哔哩"
+
+msgid "Video URL"
+msgstr "视频网址"
+
+msgid "Video source"
+msgstr "播放源"
+
+msgid "Start floating browser"
+msgstr "启动悬浮浏览器"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Show / Hide"
+msgstr "显示 / 隐藏"
+
+msgid "Hover opacity (click-through)"
+msgstr "穿透悬停透明度"
+
+msgid "In click-through mode the window drops to this opacity while the pointer hovers over it, so you can see what is underneath."
+msgstr "穿透模式下，鼠标指针悬停在悬浮窗内时窗口会降到这个透明度，便于看清下层内容。"
+
+msgid "Output floating browser logs"
+msgstr "输出悬浮浏览器日志"
+
+msgid "Master switch for all floating browser output in the console and log file"
+msgstr "总开关：控制悬浮浏览器在主程序控制台 / 日志文件里的全部输出"
+
+msgid "(including subprocess diagnostics and launcher messages). Off by default."
+msgstr "（包括子进程诊断与启动器信息）。默认关闭。"
+
+msgid "On-screen notices (pop-ups, status bar) are not affected."
+msgstr "界面上的提示（弹窗、状态栏）不受影响。"
+
+msgid "Window size, opacity, click-through, always-on-top, and the danmaku/subtitle mirroring switches"
+msgstr "窗口大小、透明度、鼠标穿透、置顶，以及「弹幕」「字幕」两个映射开关，"
+
+msgid "are all on the toolbar at the top of the floating window: drag the left area to move it,"
+msgstr "都在悬浮窗顶部的工具条上直接操作：拖动左侧区域移动窗口，"
+
+msgid "drag the right/bottom edge to resize."
+msgstr "拖动右侧 / 下侧边缘改变大小。"
+
+msgid "Startup & window"
+msgstr "启动与窗口操作"
+
+msgid "Format example: ctrl+shift+space; leave empty or use none to disable"
+msgstr "格式示例：ctrl+shift+space；留空或填 none 表示不启用"
+
+msgid "After changing hotkeys, click Save settings and restart the floating browser."
+msgstr "修改热键后需点击「保存设置」并重启悬浮浏览器生效。"
+
+msgid "The default step for forward/backward is 5 seconds."
+msgstr "快进 / 后退的默认步长为 5 秒。"
+
+msgid "Save settings"
+msgstr "保存设置"
+
+msgid "Reload hotkeys now"
+msgstr "立即重载热键"
+
+msgid "Global hotkeys"
+msgstr "全局快捷键"
+
+msgid "Not running"
+msgstr "未启动"
+
+msgid "Status"
+msgstr "运行状态"
+
+msgid "Floating browser"
+msgstr "悬浮浏览器"
+
+msgid "Settings saved"
+msgstr "设置已保存"
+
+msgid "Failed to save the floating browser config: {error}"
+msgstr "保存悬浮浏览器配置失败: {error}"
+
+msgid "Failed to save the floating browser config: "
+msgstr "保存悬浮浏览器配置失败："
+
+msgid "Save failed"
+msgstr "保存失败"
+
+msgid "Failed to read config {name}: {error}"
+msgstr "读取配置 {name} 失败: {error}"
+
+msgid "Failed to save the window geometry: {error}"
+msgstr "保存窗口几何失败: {error}"
+
+msgid "Save first, then restart the floating browser to rebind the hotkeys."
+msgstr "先保存，再重启悬浮浏览器以重新绑定热键。"
+
+msgid "The floating browser is not running; hotkeys apply on start"
+msgstr "悬浮浏览器未运行，热键将在启动时自动生效"
+
+msgid "Notice"
+msgstr "提示"
+
+msgid "These hotkeys are taken by other programs: "
+msgstr "以下热键被其它程序占用："
+
+msgid ", please pick different combinations in Global hotkeys."
+msgstr "，请在「全局快捷键」中改用其它组合。"
+
+msgid "Some hotkeys unavailable"
+msgstr "部分热键不可用"
+
+msgid "Floating browser started"
+msgstr "悬浮浏览器已启动"
+
+msgid "WebView2 runtime not found; opening the video page in the system browser instead."
+msgstr "未检测到 WebView2 运行时，已改用系统浏览器打开视频页面。"
+
+msgid "Install WebView2 to get the floating window and hotkey control."
+msgstr "安装 WebView2 后可获得悬浮窗与快捷键控制。"
+
+msgid "Running in degraded mode"
+msgstr "已降级运行"
+
+msgid "Floating browser closed"
+msgstr "悬浮浏览器已关闭"
+
+msgid "On"
+msgstr "已开启"
+
+msgid "Off"
+msgstr "已关闭"
+
+msgid "Click-through"
+msgstr "鼠标穿透"
+
+msgid ", press the toggle click-through hotkey to turn it off."
+msgstr "，可用「切换穿透」热键关闭。"
+
+msgid "Started, no video detected"
+msgstr "已启动，未检测到视频"
+
+msgid "Open a video page in the floating window and start playback; hotkeys work from then on."
+msgstr "请在悬浮窗内打开一个视频页面并开始播放，之后即可用快捷键控制。"
+
+msgid "Paused"
+msgstr "暂停中"
+
+msgid "Playing"
+msgstr "播放中"
+
+msgid "Speed"
+msgstr "弹幕速度"
+
+msgid "Volume"
+msgstr "音量"
+
+msgid " (muted)"
+msgstr "（静音）"
+
+msgid "Window"
+msgstr "窗口"
+
+msgid "Opacity"
+msgstr "不透明度"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Play / Pause"
+msgstr "播放 / 暂停"
+
+msgid "Toggle video playback"
+msgstr "切换视频播放状态"
+
+msgid "Skip forward by the configured seconds"
+msgstr "按设定的秒数向前跳转"
+
+msgid "Skip backward by the configured seconds"
+msgstr "按设定的秒数向后跳转"
+
+msgid "Hold for 3x speed"
+msgstr "按住3倍速"
+
+msgid "Play at 3x while held, restore the original speed on release"
+msgstr "按住时以 3 倍速播放，松开恢复原倍速"
+
+msgid "Volume +10%"
+msgstr "音量 +10%"
+
+msgid "Raise the volume by 10%"
+msgstr "把音量提高 10%"
+
+msgid "Volume -10%"
+msgstr "音量 -10%"
+
+msgid "Lower the volume by 10%"
+msgstr "把音量降低 10%"
+
+msgid "Toggle click-through"
+msgstr "切换穿透"
+
+msgid "Turn mouse click-through on or off"
+msgstr "开启 / 关闭鼠标穿透"
+
+msgid "Toggle overlay mirroring"
+msgstr "切换弹幕映射"
+
+msgid "Mirror Bilibili danmaku/subtitles onto the game; press again to stop"
+msgstr "把 B 站弹幕 / 字幕映射到游戏画面最上层，再按一次关闭"
+
+msgid "Not set"
+msgstr "未设置"
+
+msgid "Drag here to move the window"
+msgstr "拖动此处移动窗口"
+
+msgid "Window opacity"
+msgstr "窗口透明度"
+
+msgid "Click"
+msgstr "穿透"
+
+msgid "Click-through: clicks pass to the window below"
+msgstr "鼠标穿透：开启后点击会直接落到下面的窗口"
+
+msgid "Mirror danmaku onto the game (click to toggle, right-click for settings)"
+msgstr "把弹幕映射到游戏画面最上层（点击开关，右键设置）"
+
+msgid "Mirror subtitles onto the game (click to toggle, right-click for settings; enable CC in the player first)"
+msgstr "把字幕映射到游戏画面最上层（点击开关，右键设置；需先在播放器里打开 CC）"
+
+msgid "Toggle always-on-top"
+msgstr "切换置顶"
+
+msgid "Hide the floating window (show it again from the ok window)"
+msgstr "隐藏悬浮窗（可在 ok 界面再显示）"
+
+msgid "Close the floating browser"
+msgstr "关闭悬浮浏览器"
+
+msgid "Danmaku settings"
+msgstr "弹幕设置"
+
+msgid "Subtitle settings"
+msgstr "字幕设置"
+
+msgid "Filter by type (checked = hidden)"
+msgstr "按类型过滤（选中 = 屏蔽）"
+
+msgid "Scrolling"
+msgstr "滚动"
+
+msgid "Fixed"
+msgstr "固定"
+
+msgid "Display area"
+msgstr "显示区域"
+
+msgid "Font size"
+msgstr "弹幕字号"
+
+msgid "Very slow"
+msgstr "很慢"
+
+msgid "Slow"
+msgstr "慢"
+
+msgid "Normal"
+msgstr "适中"
+
+msgid "Fast"
+msgstr "快"
+
+msgid "Very fast"
+msgstr "很快"
+
+msgid "Options and steps follow the Bilibili player's danmaku settings."
+msgstr "选项与档位对齐 B 站播放器的弹幕设置。"
+
+msgid "Subtitle size"
+msgstr "字幕大小"
+
+msgid "Subtitle position"
+msgstr "字幕位置"
+
+msgid "Subtitle background opacity"
+msgstr "字幕背景不透明度"
+
+msgid "Larger value moves it lower (0 = top, 100 = bottom)."
+msgstr "位置越大越靠下（0 = 贴顶，100 = 贴底）。"
+
+msgid "Subtitles can only be read from the page (the API needs login), so turn on CC in the player first."
+msgstr "字幕只能从页面采集（接口需要登录），所以请先在播放器里打开 CC。"
+
+msgid "Playback speed"
+msgstr "倍速"

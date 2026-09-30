@@ -188,50 +188,50 @@ MEDIA_KEYS = {
 # 用作屏幕旋转快捷键，注册必然失败。这里统一改用 Ctrl+Shift+方向键。
 HOTKEY_ACTIONS: dict[str, dict] = {
     "play_pause": {
-        "label": "播放 / 暂停",
-        "description": "切换视频播放状态",
+        "label": "Play / Pause",
+        "description": "Toggle video playback",
         "default": "alt+s",
         "step": None,
     },
     "forward": {
-        "label": "快进",
-        "description": "按设定的秒数向前跳转",
+        "label": "Forward",
+        "description": "Skip forward by the configured seconds",
         "default": "alt+d",
         "step": 5.0,
     },
     "backward": {
-        "label": "后退",
-        "description": "按设定的秒数向后跳转",
+        "label": "Backward",
+        "description": "Skip backward by the configured seconds",
         "default": "alt+a",
         "step": 5.0,
     },
     "hold_fast_forward": {
-        "label": "按住3倍速",
-        "description": "按住时以 3 倍速播放，松开恢复原倍速",
+        "label": "Hold for 3x speed",
+        "description": "Play at 3x while held, restore the original speed on release",
         "default": "alt+f",
         "step": 3.0,
     },
     "volume_up": {
-        "label": "音量 +10%",
-        "description": "把音量提高 10%",
+        "label": "Volume +10%",
+        "description": "Raise the volume by 10%",
         "default": "alt+c",
         "step": 0.1,
     },
     "volume_down": {
-        "label": "音量 -10%",
-        "description": "把音量降低 10%",
+        "label": "Volume -10%",
+        "description": "Lower the volume by 10%",
         "default": "alt+x",
         "step": 0.1,
     },
     "toggle_click_through": {
-        "label": "切换穿透",
-        "description": "开启 / 关闭鼠标穿透",
+        "label": "Toggle click-through",
+        "description": "Turn mouse click-through on or off",
         "default": "`",
         "step": None,
     },
     "toggle_mirror": {
-        "label": "切换弹幕映射",
-        "description": "把 B 站弹幕 / 字幕映射到游戏画面最上层，再按一次关闭",
+        "label": "Toggle overlay mirroring",
+        "description": "Mirror Bilibili danmaku/subtitles onto the game; press again to stop",
         "default": "alt+m",
         "step": None,
     },
@@ -277,7 +277,7 @@ def parse_hotkey(text: str) -> Optional[tuple[int, int]]:
 def pretty_hotkey(text: str) -> str:
     """把热键字符串格式化为更适合展示的形式。"""
     if not text:
-        return "未设置"
+        return "Not set"
     return " + ".join(part.strip().upper() if len(part.strip()) == 1 else part.strip().capitalize()
                       for part in text.split("+"))
 

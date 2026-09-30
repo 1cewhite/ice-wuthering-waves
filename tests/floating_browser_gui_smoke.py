@@ -111,7 +111,11 @@ def main() -> int:
         report("01:01" in title and "1.50x" in tab.status_detail.text(),
                f"状态渲染: {title} | {tab.status_detail.text()}")
         tab._render_state(BrowserState(found=False))
-        report("未检测到视频" in tab.status_title.text(), "未找到视频时的提示")
+        # 文案跟着 i18n 走：有 ok app 时是译文，没有时是英文原文，
+        # 所以两种都接受，别把断言写死在某一种语言上
+        empty_title = tab.status_title.text()
+        report(("no video detected" in empty_title.lower()) or ("未检测到视频" in empty_title),
+               f"未找到视频时的提示（{empty_title!r}）")
     except Exception as error:
         report(False, f"状态渲染异常: {error}")
 
